@@ -2,12 +2,17 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Served from https://<user>.github.io/caffeine-tracker/, so every asset URL and
-// the service worker scope must be prefixed. Mismatch here silently breaks install.
-const basePath = '/caffeine-tracker/';
+// Served from https://<user>.github.io/caffeine-tracker/app/, so every asset URL
+// and the service worker scope must be prefixed. Mismatch here silently breaks
+// install. The site root holds the landing page instead (see `landing/`), which
+// is copied into `dist/` after this build.
+const basePath = '/caffeine-tracker/app/';
 
 export default defineConfig({
   base: basePath,
+  build: {
+    outDir: 'dist/app',
+  },
   plugins: [
     react(),
     VitePWA({

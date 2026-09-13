@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#16120f" />
+    <meta name="description" content="Personal caffeine intake tracker with a pharmacokinetic model." />
+    <link rel="icon" type="image/svg+xml" href="./app/icon.svg" />
+    <title>Caffeine Tracker</title>
+    <script>
+      // A home-screen launch must land in the app, not on the page advertising
+      // it. Installs made before the app moved to /app/ still start here.
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        window.location.replace('./app/');
+      }
+    </script>
+    <style>
+      :root {
+        --background: #16120f;
+        --surface: #221b16;
+        --border: #3b3027;
+        --text: #f2e9e1;
+        --text-muted: #a8968a;
+        --accent: #c98a3e;
+        --accent-strong: #e8a85c;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 20px;
+        background: var(--background);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+      }
+
+      main {
+        width: 100%;
+        max-width: 30rem;
+      }
+
+      .mark {
+        width: 56px;
+        height: 56px;
+        margin-bottom: 24px;
+      }
+
+      h1 {
+        font-size: clamp(1.9rem, 6vw, 2.4rem);
+        line-height: 1.15;
+        margin: 0 0 12px;
+      }
+
+      .tagline {
+        color: var(--text-muted);
+        margin: 0 0 32px;
+      }
+
+      .open-app {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 52px;
+        padding: 0 28px;
+        border-radius: 14px;
+        background: var(--accent);
+        color: var(--background);
+        font-size: 1.05rem;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .install {
+        margin: 32px 0 0;
+        padding: 16px 18px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--surface);
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      .install strong {
+        color: var(--text);
+      }
+
+      footer {
+        margin-top: 32px;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+      }
+
+      a {
+        color: var(--accent-strong);
+      }
+
+      .open-app:focus-visible,
+      a:focus-visible {
+        outline: 2px solid var(--accent-strong);
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img class="mark" src="./app/icon.svg" alt="" />
+
+      <h1>Caffeine Tracker</h1>
+      <p class="tagline">
+        Models what is actually in your bloodstream, not how many cups you drank. Everything stays
+        on your device.
+      </p>
+
+      <a class="open-app" href="./app/">Open the app</a>
+
+      <p class="install">
+        <strong>Install it:</strong> open the app, then use your browser menu &rarr;
+        <strong>Install app</strong>. It gets a home-screen icon and works offline from then on.
+      </p>
+
+      <footer>
+        <a href="https://github.com/Meisdy/caffeine-tracker">Source on GitHub</a> &middot; AGPL-3.0
+        &middot; Not medical advice
+      </footer>
+    </main>
+  </body>
+</html>
