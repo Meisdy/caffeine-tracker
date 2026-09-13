@@ -126,15 +126,12 @@ export function TodayScreen() {
   return (
     <div className="screen today-screen">
       <section className="card today-current-level">
-        <div className="today-level-block">
-          <p className="today-concentration">
-            <span className="approximation" aria-hidden="true">
-              ~
-            </span>
-            {snapshot.reading.concentrationMgPerL.toFixed(1)} <span className="unit">mg/L</span>
-          </p>
-          <p className="text-muted today-estimate-note">estimated, not measured</p>
-        </div>
+        <p className="today-concentration">
+          <span className="approximation" aria-hidden="true">
+            ~
+          </span>
+          {snapshot.reading.concentrationMgPerL.toFixed(1)} <span className="unit">mg/L</span>
+        </p>
         <PhaseBadge reading={snapshot.reading} />
       </section>
 

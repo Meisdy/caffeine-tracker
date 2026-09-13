@@ -232,11 +232,6 @@
   gap: 12px;
 }
 
-/* Keeps the level and its caveat as one flex item, so the phase badge stays opposite them. */
-.today-level-block {
-  min-width: 0;
-}
-
 .today-concentration {
   font-size: 36px;
   font-weight: 700;
@@ -257,7 +252,6 @@
   color: var(--text-muted);
 }
 
-.today-estimate-note,
 .cutoff-caveat,
 .dose-range-hint {
   font-size: 12px;

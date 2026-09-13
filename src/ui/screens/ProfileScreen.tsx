@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { useProfile } from '../hooks/useProfile';
 import { personalHalfLifeHours, halfLifeFactorsFor } from '../../domain/halfLife';
-import type { LiverImpairment, PregnancyStage, Sex, Weekday } from '../../domain/types';
+import type { LiverImpairment, PregnancyStage, Profile, Sex, Weekday } from '../../domain/types';
 import { getSettings, saveSettings } from '../../data/repositories';
 import type { Settings } from '../../data/entities';
 import { exportToJson, importFromJson } from '../../data/backup';
@@ -53,6 +53,9 @@ export function ProfileScreen() {
   // into the closures declared below, but a fresh const keeps its narrowed type.
   const currentProfile = profile;
   const currentSettings = settings;
+  // Neither modifier applies to men, and offering them implies the model is
+  // asking something it is not.
+  const showsPregnancyRelatedModifiers = currentProfile.sex !== 'male';
 
   const halfLifeHours = personalHalfLifeHours(currentProfile);
   const halfLifeFactors = halfLifeFactorsFor(currentProfile);
@@ -131,7 +134,7 @@ export function ProfileScreen() {
           <span>Sex</span>
           <select
             value={currentProfile.sex}
-            onChange={(event) => void saveProfile({ ...currentProfile, sex: event.target.value as Sex })}
+            onChange={(event) => void saveProfile(withSex(currentProfile, event.target.value as Sex))}
           >
             {SEX_OPTIONS.map((sex) => (
               <option key={sex} value={sex}>
@@ -157,37 +160,41 @@ export function ProfileScreen() {
           />
           <span>Smokes</span>
         </label>
-        <label className="field field-checkbox">
-          <input
-            type="checkbox"
-            checked={currentProfile.modifiers.usesOralContraceptives}
-            onChange={(event) =>
-              void saveProfile({
-                ...currentProfile,
-                modifiers: { ...currentProfile.modifiers, usesOralContraceptives: event.target.checked },
-              })
-            }
-          />
-          <span>Uses oral contraceptives</span>
-        </label>
-        <label className="field">
-          <span>Pregnancy</span>
-          <select
-            value={currentProfile.modifiers.pregnancy}
-            onChange={(event) =>
-              void saveProfile({
-                ...currentProfile,
-                modifiers: { ...currentProfile.modifiers, pregnancy: event.target.value as PregnancyStage },
-              })
-            }
-          >
-            {PREGNANCY_OPTIONS.map((stage) => (
-              <option key={stage} value={stage}>
-                {stage}
-              </option>
-            ))}
-          </select>
-        </label>
+        {showsPregnancyRelatedModifiers ? (
+          <>
+            <label className="field field-checkbox">
+              <input
+                type="checkbox"
+                checked={currentProfile.modifiers.usesOralContraceptives}
+                onChange={(event) =>
+                  void saveProfile({
+                    ...currentProfile,
+                    modifiers: { ...currentProfile.modifiers, usesOralContraceptives: event.target.checked },
+                  })
+                }
+              />
+              <span>Uses oral contraceptives</span>
+            </label>
+            <label className="field">
+              <span>Pregnancy</span>
+              <select
+                value={currentProfile.modifiers.pregnancy}
+                onChange={(event) =>
+                  void saveProfile({
+                    ...currentProfile,
+                    modifiers: { ...currentProfile.modifiers, pregnancy: event.target.value as PregnancyStage },
+                  })
+                }
+              >
+                {PREGNANCY_OPTIONS.map((stage) => (
+                  <option key={stage} value={stage}>
+                    {stage}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </>
+        ) : null}
         <label className="field">
           <span>Liver impairment</span>
           <select
@@ -311,4 +318,18 @@ export function ProfileScreen() {
       </section>
     </div>
   );
+}
+
+/**
+ * Clears the modifiers that no longer apply, so a value set earlier cannot go
+ * on silently shortening the half-life from a field that is no longer shown.
+ */
+function withSex(profile: Profile, sex: Sex): Profile {
+  if (sex !== 'male') return { ...profile, sex };
+
+  return {
+    ...profile,
+    sex,
+    modifiers: { ...profile.modifiers, usesOralContraceptives: false, pregnancy: 'none' },
+  };
 }

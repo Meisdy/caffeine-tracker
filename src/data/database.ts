@@ -39,21 +39,45 @@ export class CaffeineDatabase extends Dexie {
 export const database = new CaffeineDatabase();
 
 /**
- * Seeds the drink catalog and default singleton rows on first run.
- * Safe to call on every app start: existing data is never overwritten.
+ * Seeds the catalog and default singleton rows.
+ * Safe to call on every app start: user data is never overwritten.
  */
 export async function initializeDatabase(): Promise<void> {
-  await seedDrinksIfEmpty();
+  await synchronizeSeedDrinks();
   await seedSourcesIfEmpty();
   await seedProfileIfMissing();
   await seedSettingsIfMissing();
 }
 
-async function seedDrinksIfEmpty(): Promise<void> {
-  const drinkCount = await database.drinks.count();
-  if (drinkCount > 0) return;
+/**
+ * Brings the seeded part of the catalog in line with the shipped list on every
+ * start, rather than only on first run.
+ *
+ * Installs are long-lived and updates arrive silently, so a catalog correction
+ * would otherwise never reach anyone who already opened the app. Only rows
+ * marked `isSeeded` are touched: drinks the user created or edited are theirs,
+ * and past intakes are unaffected either way because each one stores its own
+ * dose and label.
+ */
+async function synchronizeSeedDrinks(): Promise<void> {
+  const existingDrinks = await database.drinks.toArray();
+  const shippedIds = new Set(SEED_DRINKS.map((drink) => drink.id));
+  const userEditedIds = new Set(
+    existingDrinks.filter((drink) => !drink.isSeeded).map((drink) => drink.id),
+  );
 
-  await database.drinks.bulkAdd(SEED_DRINKS);
+  // A drink the user has taken ownership of keeps their version.
+  await database.drinks.bulkPut(SEED_DRINKS.filter((drink) => !userEditedIds.has(drink.id)));
+
+  const favorites = await database.favorites.toArray();
+  const referencedDrinkIds = new Set(favorites.map((favorite) => favorite.drinkId));
+  const withdrawnIds = existingDrinks
+    .filter((drink) => drink.isSeeded && !shippedIds.has(drink.id))
+    // Removing one still pinned by a favorite would leave that favorite dangling.
+    .filter((drink) => !referencedDrinkIds.has(drink.id))
+    .map((drink) => drink.id);
+
+  await database.drinks.bulkDelete(withdrawnIds);
 }
 
 async function seedSourcesIfEmpty(): Promise<void> {
