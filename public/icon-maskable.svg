@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Caffeine Tracker">
+  <rect width="512" height="512" fill="#16120f"/>
+  <ellipse cx="256" cy="256" rx="103" ry="137" transform="rotate(-32 256 256)" fill="#c98a3e"/>
+  <path d="M203 329 C 233 290, 233 222, 203 183" stroke="#16120f" stroke-width="20" fill="none" stroke-linecap="round"/>
+  <path d="M309 329 C 279 290, 279 222, 309 183" stroke="#16120f" stroke-width="20" fill="none" stroke-linecap="round"/>
+</svg>
