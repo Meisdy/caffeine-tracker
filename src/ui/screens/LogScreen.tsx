@@ -17,12 +17,18 @@ function buildIntakeLabel(drink: Drink, source: Source | null): string {
   return source ? `${drink.name} — ${source.name}` : drink.name;
 }
 
+// Strip accents so "caffe" finds "Caffè Crema" on keyboards without them.
+function normalizeForSearch(text: string): string {
+  return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+}
+
 export function LogScreen() {
   const [mode, setMode] = useState<LogMode>('catalog');
 
   const drinks = useLiveQuery(() => listDrinks(), []) ?? [];
   const sources = useLiveQuery(() => listSources(), []) ?? [];
 
+  const [drinkSearch, setDrinkSearch] = useState('');
   const [selectedDrinkId, setSelectedDrinkId] = useState('');
   const [selectedSourceId, setSelectedSourceId] = useState('');
   const [volumeMl, setVolumeMl] = useState(0);
@@ -36,6 +42,12 @@ export function LogScreen() {
 
   const selectedDrink = drinks.find((drink) => drink.id === selectedDrinkId) ?? null;
   const selectedSource = sources.find((source) => source.id === selectedSourceId) ?? null;
+
+  // The selected drink stays listed even when filtered out, so the select never shows a stale value.
+  const normalizedDrinkSearch = normalizeForSearch(drinkSearch.trim());
+  const matchingDrinks = drinks.filter(
+    (drink) => drink.id === selectedDrinkId || normalizeForSearch(drink.name).includes(normalizedDrinkSearch),
+  );
 
   // Pick sensible defaults whenever the drink or source selection changes.
   useEffect(() => {
@@ -118,12 +130,22 @@ export function LogScreen() {
       {mode === 'catalog' ? (
         <section className="card">
           <label className="field">
+            <span>Search</span>
+            <input
+              type="search"
+              placeholder="Filter drinks…"
+              value={drinkSearch}
+              onChange={(event) => setDrinkSearch(event.target.value)}
+            />
+          </label>
+
+          <label className="field">
             <span>Drink</span>
             <select value={selectedDrinkId} onChange={(event) => setSelectedDrinkId(event.target.value)}>
               <option value="" disabled>
-                Choose a drink…
+                {matchingDrinks.length === 0 ? 'No matching drinks' : 'Choose a drink…'}
               </option>
-              {drinks.map((drink) => (
+              {matchingDrinks.map((drink) => (
                 <option key={drink.id} value={drink.id}>
                   {drink.name}
                 </option>
