@@ -138,11 +138,24 @@ export function CurveChart({
         </>
       ) : null}
 
-      {timeAxisTicks.map((tick) => (
-        <text key={tick.atMs} x={tick.x} y={PLOT_BOTTOM + 14} textAnchor="middle" className="curve-axis-label">
+      {timeAxisTicks.map((tick, index) => (
+        <text
+          key={tick.atMs}
+          x={tick.x}
+          y={PLOT_BOTTOM + 14}
+          textAnchor={axisLabelAnchor(index, timeAxisTicks.length)}
+          className="curve-axis-label"
+        >
           {formatClockTime(tick.atMs)}
         </text>
       ))}
     </svg>
   );
+}
+
+/** Centred end labels overflow the viewBox, since the side margins are narrower than a timestamp. */
+function axisLabelAnchor(index: number, tickCount: number): 'start' | 'middle' | 'end' {
+  if (index === 0) return 'start';
+  if (index === tickCount - 1) return 'end';
+  return 'middle';
 }

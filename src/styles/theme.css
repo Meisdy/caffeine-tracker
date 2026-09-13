@@ -1,0 +1,83 @@
+:root {
+  --background: #16120f;
+  --surface: #221b16;
+  --surface-raised: #2e251e;
+  --border: #3b3027;
+  --text: #f2e9e1;
+  --text-muted: #a8968a;
+  --accent: #c98a3e;
+  --accent-strong: #e8a85c;
+  --danger: #c9564a;
+  --caution: #d9a441;
+  --ok: #6f9e5f;
+  --radius: 14px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --tap-target: 48px;
+  --font-stack:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: var(--font-stack);
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0 0 8px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
