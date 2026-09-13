@@ -132,6 +132,16 @@ export const SEED_DRINKS: Drink[] = [
     isSeeded: true,
   },
   {
+    // Coop's budget ready-to-drink coffee, value from the package declaration.
+    id: 'prix-garantie-caffe-senza',
+    name: 'Prix Garantie Caffé Senza (Coop)',
+    category: 'coffee',
+    defaultVolumeMl: 330,
+    mgPer100Ml: 23.2,
+    fixedMg: null,
+    isSeeded: true,
+  },
+  {
     id: 'black-tea',
     name: 'Black Tea',
     category: 'tea',
