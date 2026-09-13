@@ -611,8 +611,53 @@
 
 /* Insights screen */
 
-.insights-disclaimer {
-  margin-bottom: 16px;
+.alertness-fit-bands {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.alertness-fit-band {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.alertness-fit-band-label {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.alertness-fit-band-track {
+  height: 10px;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+
+.alertness-fit-band-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.alertness-fit-band-empty,
+.alertness-fit-band-value {
+  font-size: 13px;
+  text-align: right;
+}
+
+.alertness-fit-band-empty {
+  grid-column: 1 / -1;
+}
+
+.alertness-fit-footnote {
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 12px 0 0;
 }
 
 .insights-big-number {

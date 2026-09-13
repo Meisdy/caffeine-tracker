@@ -79,6 +79,18 @@ export const WITHDRAWAL_MINIMUM_HABIT_MG_PER_DAY = 100;
 export const WITHDRAWAL_LIKELY_RATIO = 0.25;
 export const WITHDRAWAL_POSSIBLE_RATIO = 0.5;
 
+/**
+ * Alertness ratings are only worth comparing against the curve once there are
+ * enough of them that a shared direction is not just two lucky taps.
+ */
+export const MINIMUM_RATINGS_FOR_ALERTNESS_FIT = 8;
+
+/** Above this multiple of the effect threshold, a rating counts as "well caffeinated". */
+export const ALERTNESS_HIGH_BAND_MULTIPLE = 3;
+
+/** Correlation below this is treated as no relationship rather than a weak one. */
+export const ALERTNESS_CORRELATION_THRESHOLD = 0.3;
+
 /** Flagging a day as unusual before this much history produces noise, not signal. */
 export const MINIMUM_DAYS_FOR_BASELINE = 10;
 export const UNUSUAL_INTAKE_DEVIATIONS = 1.5;

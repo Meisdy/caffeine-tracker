@@ -6,7 +6,7 @@
  * model itself.
  */
 
-import type { BedtimeByWeekday, Profile } from '../domain/types';
+import type { AlertnessSample, BedtimeByWeekday, Profile } from '../domain/types';
 
 export type DrinkCategory = 'coffee' | 'tea' | 'energy' | 'soda' | 'chocolate' | 'supplement';
 
@@ -39,10 +39,8 @@ export interface Favorite {
   sortOrder: number;
 }
 
-export interface AlertnessRating {
+export interface AlertnessRating extends AlertnessSample {
   id: string;
-  ratedAt: number;
-  rating: 1 | 2 | 3 | 4 | 5;
 }
 
 export interface Settings {

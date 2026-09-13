@@ -59,6 +59,15 @@ export interface Intake extends Dose {
   updatedAt: number;
 }
 
+/**
+ * A self-reported alertness rating, 1 (foggy) to 5 (sharp). The model needs
+ * only the time and the number; the stored record adds an id.
+ */
+export interface AlertnessSample {
+  ratedAt: number;
+  rating: 1 | 2 | 3 | 4 | 5;
+}
+
 export type PhaseName =
   | 'clear'
   | 'rising'

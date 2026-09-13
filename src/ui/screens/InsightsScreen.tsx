@@ -1,12 +1,15 @@
 import { useMemo } from 'react';
 import { useProfile } from '../hooks/useProfile';
 import { useIntakes } from '../hooks/useIntakes';
+import { useAlertnessRatings } from '../hooks/useAlertnessRatings';
 import { useNow } from '../hooks/useNow';
 import { rollingDailyStats, classifyTodayIntake, totalMgOnDay } from '../../domain/baseline';
 import { toleranceState, withdrawalRisk as calculateWithdrawalRisk } from '../../domain/tolerance';
 import { personalHalfLifeHours, halfLifeFactorsFor } from '../../domain/halfLife';
+import { alertnessFit } from '../../domain/alertnessFit';
 import { DAY_MS, weekdayOf } from '../../domain/time';
 import type { IntakeDeviation, WithdrawalRisk } from '../../domain/types';
+import { AlertnessFitCard } from '../components/AlertnessFitCard';
 
 const HISTORY_WINDOW_DAYS = 30;
 const HISTORY_BUFFER_DAYS = 5;
@@ -40,16 +43,21 @@ export function InsightsScreen() {
   const now = useNow();
   const historyStartMs = now - (HISTORY_WINDOW_DAYS + HISTORY_BUFFER_DAYS) * DAY_MS;
   const intakes = useIntakes(historyStartMs, now);
+  const ratings = useAlertnessRatings(historyStartMs, now);
 
   const baseline30 = useMemo(() => rollingDailyStats(intakes, now, HISTORY_WINDOW_DAYS), [intakes, now]);
   const baseline7 = useMemo(() => rollingDailyStats(intakes, now, RECENT_WINDOW_DAYS), [intakes, now]);
   const tolerance = useMemo(() => toleranceState(intakes, now), [intakes, now]);
+  const fit = useMemo(
+    () => (profile ? alertnessFit(ratings, intakes, profile, tolerance) : null),
+    [ratings, intakes, profile, tolerance],
+  );
 
   const todayTotalMg = totalMgOnDay(intakes, now);
   const deviation = classifyTodayIntake(todayTotalMg, baseline30, weekdayOf(now));
   const withdrawal = calculateWithdrawalRisk(todayTotalMg, tolerance);
 
-  if (isLoading || !profile) {
+  if (isLoading || !profile || !fit) {
     return <p className="text-muted">Loading…</p>;
   }
 
@@ -58,9 +66,7 @@ export function InsightsScreen() {
 
   return (
     <div className="screen insights-screen">
-      <p className="text-muted insights-disclaimer">
-        These figures are modeled estimates based on your logged intake and profile — not measured values.
-      </p>
+      <AlertnessFitCard fit={fit} windowDays={HISTORY_WINDOW_DAYS} />
 
       <section className="card">
         <h2 className="section-title">Tolerance index (estimate)</h2>
