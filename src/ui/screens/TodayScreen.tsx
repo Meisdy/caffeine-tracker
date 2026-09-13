@@ -34,7 +34,7 @@ const INTAKE_HISTORY_DAYS = BASELINE_WINDOW_DAYS + 5;
 
 export function TodayScreen() {
   const { profile, isLoading: isProfileLoading } = useProfile();
-  const now = useNow();
+  const [now, refreshNow] = useNow();
 
   const historyStartMs = now - INTAKE_HISTORY_DAYS * DAY_MS;
   const curveFromMs = now - CURVE_HOURS_BEFORE_NOW * HOUR_MS;
@@ -117,6 +117,7 @@ export function TodayScreen() {
       drinkId: favorite.drinkId,
       sourceId: favorite.sourceId,
     });
+    refreshNow();
   }
 
   async function handleRateAlertness(rating: 1 | 2 | 3 | 4 | 5) {

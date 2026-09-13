@@ -40,7 +40,7 @@ function describeToleranceIndex(index: number): string {
 
 export function InsightsScreen() {
   const { profile, isLoading } = useProfile();
-  const now = useNow();
+  const [now] = useNow();
   const historyStartMs = now - (HISTORY_WINDOW_DAYS + HISTORY_BUFFER_DAYS) * DAY_MS;
   const intakes = useIntakes(historyStartMs, now);
   const ratings = useAlertnessRatings(historyStartMs, now);

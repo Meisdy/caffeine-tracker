@@ -12,7 +12,7 @@ const HISTORY_WINDOW_DAYS = 30;
 const WEEKDAYS: Weekday[] = [0, 1, 2, 3, 4, 5, 6];
 
 export function HistoryScreen() {
-  const now = useNow();
+  const [now] = useNow();
   const historyStartMs = now - HISTORY_WINDOW_DAYS * DAY_MS;
   const intakes = useIntakes(historyStartMs, now);
 

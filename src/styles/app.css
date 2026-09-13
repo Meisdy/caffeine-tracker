@@ -455,6 +455,28 @@
   font-size: 13px;
 }
 
+.favorite-tile.is-logged {
+  border-color: var(--ok);
+  animation: favorite-logged-pulse 300ms ease-out;
+}
+
+.favorite-tile.is-logged .favorite-tile-dose {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+@keyframes favorite-logged-pulse {
+  50% {
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .favorite-tile.is-logged {
+    animation: none;
+  }
+}
+
 /* Intake list */
 
 .intake-list {
