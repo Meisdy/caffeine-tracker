@@ -48,6 +48,18 @@ export const SEED_DRINKS: Drink[] = [
     isSeeded: true,
   },
   {
+    // The bean-to-cup staple in Switzerland and Germany, and absent from most
+    // catalogs because it has no US equivalent. ~9 g of 100% Arabica at
+    // ~12 mg caffeine per gram, mostly extracted into a ~120 ml cup.
+    id: 'caffe-crema',
+    name: 'Caffè Crema',
+    category: 'coffee',
+    defaultVolumeMl: 120,
+    mgPer100Ml: 83,
+    fixedMg: null,
+    isSeeded: true,
+  },
+  {
     id: 'americano',
     name: 'Americano',
     category: 'coffee',
