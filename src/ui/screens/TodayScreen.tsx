@@ -5,7 +5,8 @@ import { useIntakes } from '../hooks/useIntakes';
 import { useNow } from '../hooks/useNow';
 import { curveOverWindow } from '../../domain/pharmacokinetics';
 import { phaseAt } from '../../domain/phases';
-import { bedtimeAfter, latestSafeIntakeTime, projectedSleepLevel } from '../../domain/sleep';
+import { bedtimeAfter, cutoffWindow, latestSafeIntakeTime, projectedSleepLevel } from '../../domain/sleep';
+import type { CutoffWindow } from '../../domain/sleep';
 import { rollingDailyStats, classifyTodayIntake, totalMgOnDay } from '../../domain/baseline';
 import { toleranceState, withdrawalRisk as calculateWithdrawalRisk } from '../../domain/tolerance';
 import { buildRecommendations } from '../../domain/recommendations';
@@ -80,6 +81,11 @@ export function TodayScreen() {
     return curveOverWindow(intakes, curveFromMs, curveToMs, CURVE_STEP_MINUTES, profile);
   }, [profile, intakes, curveFromMs, curveToMs]);
 
+  const cutoff = useMemo<CutoffWindow>(() => {
+    if (!profile) return { earliest: null, estimate: null, latest: null };
+    return cutoffWindow(intakes, REFERENCE_COFFEE_MG, profile, now, bedtimeAfter(profile, now));
+  }, [profile, intakes, now]);
+
   const todaysIntakes = useMemo(() => {
     const todayStartMs = startOfLocalDay(now);
     return intakes.filter((intake) => intake.takenAt >= todayStartMs).sort((a, b) => b.takenAt - a.takenAt);
@@ -120,9 +126,15 @@ export function TodayScreen() {
   return (
     <div className="screen today-screen">
       <section className="card today-current-level">
-        <p className="today-concentration">
-          {snapshot.reading.concentrationMgPerL.toFixed(1)} <span className="unit">mg/L</span>
-        </p>
+        <div className="today-level-block">
+          <p className="today-concentration">
+            <span className="approximation" aria-hidden="true">
+              ~
+            </span>
+            {snapshot.reading.concentrationMgPerL.toFixed(1)} <span className="unit">mg/L</span>
+          </p>
+          <p className="text-muted today-estimate-note">estimated, not measured</p>
+        </div>
         <PhaseBadge reading={snapshot.reading} />
       </section>
 
@@ -141,7 +153,7 @@ export function TodayScreen() {
       </section>
 
       <CutoffCard
-        cutoffAt={snapshot.cutoffAt}
+        cutoff={cutoff}
         bedtimeAt={snapshot.bedtimeAt}
         projectedBedtimeLevelMgPerL={snapshot.projectedLevelAtBedtimeMgPerL}
         sleepThresholdMgPerL={profile.sleepDisruptionThresholdMgPerL}

@@ -52,6 +52,23 @@ export const SLEEP_ONSET_WINDOW_HOURS = 1.5;
 /** Dose the cutoff card asks about: "can I still have one more coffee?" */
 export const REFERENCE_COFFEE_MG = 80;
 
+/**
+ * How far the personal half-life estimate is assumed to be off.
+ *
+ * It is derived from population data, and real individual half-lives span
+ * roughly 2-10 h, so presenting a cutoff as an exact minute claims precision
+ * the model does not have. This spread turns it into a window instead.
+ */
+export const HALF_LIFE_UNCERTAINTY = 0.3;
+
+/**
+ * How far a real drink is assumed to differ from its catalog value.
+ *
+ * Grind, machine, bean and pour all move the dose, and this error dwarfs
+ * anything in the model — hence the nudge to calibrate a favorite once.
+ */
+export const DOSE_UNCERTAINTY = 0.35;
+
 /** Tolerance builds over days and fades over roughly a week and a half. */
 export const TOLERANCE_HALF_LIFE_DAYS = 7;
 export const TOLERANCE_WINDOW_DAYS = 28;

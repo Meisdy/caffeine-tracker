@@ -1,4 +1,5 @@
-import { SLEEP_ONSET_WINDOW_HOURS } from './constants';
+import { HALF_LIFE_UNCERTAINTY, SLEEP_ONSET_WINDOW_HOURS } from './constants';
+import { personalHalfLifeHours } from './halfLife';
 import { concentrationAt, curveOverWindow } from './pharmacokinetics';
 import { DAY_MS, HOUR_MS, MINUTE_MS, startOfLocalDay, weekdayOf } from './time';
 import type { Dose, Profile } from './types';
@@ -72,6 +73,47 @@ export function latestSafeIntakeTime(
     }
   }
   return latestSafe;
+}
+
+export interface CutoffWindow {
+  /** Assuming a slower metabolism than estimated, so the cutoff comes sooner. */
+  earliest: number | null;
+  /** The cutoff for the estimated half-life itself. */
+  estimate: number | null;
+  /** Assuming a faster metabolism than estimated. */
+  latest: number | null;
+}
+
+/**
+ * The cutoff recomputed for a slower and a faster metabolism.
+ *
+ * Individual half-lives vary far more than the model can know from body
+ * metrics alone, so showing one exact minute would overstate its confidence.
+ * The window is what the cutoff becomes if the half-life estimate is off by
+ * `HALF_LIFE_UNCERTAINTY` in either direction.
+ */
+export function cutoffWindow(
+  doses: readonly Dose[],
+  additionalDoseMg: number,
+  profile: Profile,
+  fromMs: number,
+  bedtimeMs: number,
+): CutoffWindow {
+  const estimatedHalfLife = personalHalfLifeHours(profile);
+  const cutoffForHalfLife = (hours: number): number | null =>
+    latestSafeIntakeTime(
+      doses,
+      additionalDoseMg,
+      { ...profile, halfLifeOverrideHours: hours },
+      fromMs,
+      bedtimeMs,
+    );
+
+  return {
+    earliest: cutoffForHalfLife(estimatedHalfLife * (1 + HALF_LIFE_UNCERTAINTY)),
+    estimate: cutoffForHalfLife(estimatedHalfLife),
+    latest: cutoffForHalfLife(estimatedHalfLife * (1 - HALF_LIFE_UNCERTAINTY)),
+  };
 }
 
 /**

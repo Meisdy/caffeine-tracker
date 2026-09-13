@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { listDrinks, listSources, logIntake, saveFavorite } from '../../data/repositories';
 import type { Drink, Source } from '../../data/entities';
+import { typicalDoseRangeMg } from '../../domain/doseRange';
 import { NumberField } from '../components/NumberField';
 import { toDatetimeLocalValue, fromDatetimeLocalValue } from '../lib/date';
 
@@ -147,6 +148,14 @@ export function LogScreen() {
           </label>
 
           <p className="computed-dose">{computedCaffeineMg.toFixed(0)} mg</p>
+          {computedCaffeineMg > 0 ? (
+            <p className="text-muted dose-range-hint">
+              Real drinks of this kind usually land between {typicalDoseRangeMg(computedCaffeineMg).lowMg} and{' '}
+              {typicalDoseRangeMg(computedCaffeineMg).highMg} mg. Grind, machine and pour move it more
+              than anything else in the model — if this is a drink you repeat, set the figure for
+              your machine once and save it as a favorite.
+            </p>
+          ) : null}
 
           <label className="field">
             <span>Time</span>

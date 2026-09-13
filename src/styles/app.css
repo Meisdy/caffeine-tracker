@@ -232,16 +232,37 @@
   gap: 12px;
 }
 
+/* Keeps the level and its caveat as one flex item, so the phase badge stays opposite them. */
+.today-level-block {
+  min-width: 0;
+}
+
 .today-concentration {
   font-size: 36px;
   font-weight: 700;
   margin: 0;
+  white-space: nowrap;
 }
 
 .today-concentration .unit {
   font-size: 16px;
   font-weight: 500;
   color: var(--text-muted);
+}
+
+/* Understated, so the figure reads as approximate without shouting about it. */
+.today-concentration .approximation {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.today-estimate-note,
+.cutoff-caveat,
+.dose-range-hint {
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 4px 0 0;
 }
 
 /* Phase badge */

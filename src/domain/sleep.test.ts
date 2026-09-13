@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { bedtimeAfter, latestSafeIntakeTime, projectedSleepLevel, timeUntilBelow } from './sleep';
+import {
+  bedtimeAfter,
+  cutoffWindow,
+  latestSafeIntakeTime,
+  projectedSleepLevel,
+  timeUntilBelow,
+} from './sleep';
 import { makeIntake, makeProfile } from './testFixtures';
 import { HOUR_MS } from './time';
 
@@ -76,6 +82,28 @@ describe('latestSafeIntakeTime', () => {
 
   it('returns null once bedtime has already passed', () => {
     expect(latestSafeIntakeTime([], 80, profile, bedtime + HOUR_MS, bedtime)).toBeNull();
+  });
+});
+
+describe('cutoffWindow', () => {
+  it('brackets the point estimate, with a slower metabolism cutting off earlier', () => {
+    const { earliest, estimate, latest } = cutoffWindow([], 120, profile, morning, bedtime);
+
+    expect(earliest).not.toBeNull();
+    expect(estimate).not.toBeNull();
+    expect(latest).not.toBeNull();
+    expect(earliest as number).toBeLessThan(estimate as number);
+    expect(estimate as number).toBeLessThan(latest as number);
+  });
+
+  it('agrees with the point estimate from latestSafeIntakeTime', () => {
+    const { estimate } = cutoffWindow([], 120, profile, morning, bedtime);
+    expect(estimate).toBe(latestSafeIntakeTime([], 120, profile, morning, bedtime));
+  });
+
+  it('collapses to bedtime at every half-life for a negligible dose', () => {
+    const { earliest, estimate, latest } = cutoffWindow([], 1, profile, morning, bedtime);
+    expect([earliest, estimate, latest]).toEqual([bedtime, bedtime, bedtime]);
   });
 });
 

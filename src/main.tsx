@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import { initializeDatabase } from './data/database';
+import { requestPersistentStorage } from './data/persistence';
 import App from './App';
 import './styles/theme.css';
 import './styles/app.css';
@@ -21,6 +22,10 @@ try {
 } catch {
   // Offline-first app; service worker is an enhancement, not a requirement.
 }
+
+// Asked for early and not awaited: a refusal is expected outside installed
+// apps, and the tracker works the same either way.
+void requestPersistentStorage();
 
 initializeDatabase()
   .then(() => {
