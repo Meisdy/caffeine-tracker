@@ -1,5 +1,15 @@
 # Caffeine Tracker
 
+### ☕ [**Open the app →**](https://meisdy.github.io/caffeine-tracker/)
+
+**Install on Android:** open that link in **Chrome**, then **⋮ → Install app**. It lands on your home screen and runs offline from then on.
+
+> Tapping the link from inside the GitHub mobile app opens a webview, which cannot install a PWA. Use **⋮ → Open in browser** first, or paste the URL into Chrome.
+
+Firefox for Android does not support PWA install and is unsupported. Chrome, Edge, Samsung Internet, Brave and Opera all work.
+
+---
+
 A personal caffeine tracker that models what is actually in your bloodstream, not just how many cups you drank.
 
 Installable as a Progressive Web App on Android. All data lives on the device in IndexedDB — there is no backend, no account, and nothing is ever transmitted anywhere.
