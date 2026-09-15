@@ -58,6 +58,12 @@ export function LogScreen() {
 
   const computedCaffeineMg = selectedDrink ? computeCaffeineMg(selectedDrink, volumeMl) : 0;
 
+  // Both modes share the checkbox, so a tick made in one must not silently carry into the other.
+  function switchMode(nextMode: LogMode) {
+    setMode(nextMode);
+    setSaveAsFavorite(false);
+  }
+
   function resetTakenAtToNow() {
     setTakenAtValue(toDatetimeLocalValue(Date.now()));
   }
@@ -108,7 +114,19 @@ export function LogScreen() {
       sourceId: null,
     });
 
+    if (saveAsFavorite) {
+      await saveFavorite({
+        drinkId: null,
+        sourceId: null,
+        label: trimmedName,
+        volumeMl: null,
+        caffeineMg: customCaffeineMg,
+        sortOrder: Date.now(),
+      });
+    }
+
     setConfirmationMessage(`Logged ${customCaffeineMg.toFixed(0)} mg`);
+    setSaveAsFavorite(false);
     setCustomName('');
     setCustomCaffeineMg(0);
     resetTakenAtToNow();
@@ -117,10 +135,10 @@ export function LogScreen() {
   return (
     <div className="screen log-screen">
       <div className="segmented-control">
-        <button type="button" className={mode === 'catalog' ? 'is-active' : ''} onClick={() => setMode('catalog')}>
+        <button type="button" className={mode === 'catalog' ? 'is-active' : ''} onClick={() => switchMode('catalog')}>
           From catalog
         </button>
-        <button type="button" className={mode === 'custom' ? 'is-active' : ''} onClick={() => setMode('custom')}>
+        <button type="button" className={mode === 'custom' ? 'is-active' : ''} onClick={() => switchMode('custom')}>
           Custom
         </button>
       </div>
@@ -174,8 +192,8 @@ export function LogScreen() {
             <p className="text-muted dose-range-hint">
               Real drinks of this kind usually land between {typicalDoseRangeMg(computedCaffeineMg).lowMg} and{' '}
               {typicalDoseRangeMg(computedCaffeineMg).highMg} mg. Grind, machine and pour move it more
-              than anything else in the model — if this is a drink you repeat, set the figure for
-              your machine once and save it as a favorite.
+              than anything else in the model — if you know the figure for your machine, enter it
+              under Custom and save it as a favorite.
             </p>
           ) : null}
 
@@ -224,6 +242,11 @@ export function LogScreen() {
           <button type="button" className="button" onClick={resetTakenAtToNow}>
             Now
           </button>
+
+          <label className="field field-checkbox">
+            <input type="checkbox" checked={saveAsFavorite} onChange={(event) => setSaveAsFavorite(event.target.checked)} />
+            <span>Save as favorite</span>
+          </label>
 
           <button
             type="button"

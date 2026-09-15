@@ -29,7 +29,8 @@ export interface Source {
 
 export interface Favorite {
   id: string;
-  drinkId: string;
+  /** Null for a custom favorite whose dose was entered directly, e.g. measured for one machine. */
+  drinkId: string | null;
   sourceId: string | null;
   /** e.g. "Espresso — work Jura" */
   label: string;

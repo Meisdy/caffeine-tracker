@@ -8,6 +8,7 @@ import type { Settings } from '../../data/entities';
 import { exportToJson, importFromJson } from '../../data/backup';
 import { areNotificationsSupported, requestNotificationPermission, enableDailyDigest } from '../../notifications/registration';
 import { NumberField } from '../components/NumberField';
+import { ModelInfoCard } from '../components/ModelInfoCard';
 import { formatWeekdayLabel } from '../lib/date';
 
 const WEEKDAYS: Weekday[] = [0, 1, 2, 3, 4, 5, 6];
@@ -265,6 +266,7 @@ export function ProfileScreen() {
           min={0}
           step={0.1}
         />
+        <p className="text-muted field-hint">How the default was chosen is explained under How the model works below.</p>
       </section>
 
       <section className="card">
@@ -316,6 +318,8 @@ export function ProfileScreen() {
         </div>
         {backupMessage ? <p className="text-muted">{backupMessage}</p> : null}
       </section>
+
+      <ModelInfoCard />
     </div>
   );
 }

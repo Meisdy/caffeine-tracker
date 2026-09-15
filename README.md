@@ -20,11 +20,12 @@ Installable as a Progressive Web App on Android. All data lives on the device in
 
 ## What it does
 
-- **One-tap logging** from a grid of favorites, including per-machine doses — "Espresso, work Jura" can carry a different dose than "Espresso, café".
+- **One-tap logging** from a grid of favorites, including per-machine doses — "Espresso, work Jura" can carry a different dose than "Espresso, café". A favorite can come from the catalog or from an exact dose entered under **Log → Custom**.
 - **A live concentration curve** built from a pharmacokinetic model personalized to your body and metabolism.
 - **A phase readout** — rising, peak, productive, fading, crash risk, overloaded — derived from both the level and its slope.
 - **An advice card** pairing short, situation-based recommendations with the **sleep cutoff**: the last moment you can have another coffee and still be under your sleep-disruption threshold when you go to bed.
 - **Habit awareness** across days and weeks: rolling baselines, unusual-intake detection, a tolerance estimate, and withdrawal-headache warnings.
+- **A plain-language explanation of the model** at the bottom of the Profile screen, including where the sleep threshold comes from.
 
 ---
 
@@ -65,6 +66,8 @@ Two things are deliberately **not** half-life modifiers:
 ### The sleep cutoff
 
 The cutoff is judged on the **worst concentration across the first 90 minutes of sleep**, not on the level at the instant of bedtime. A coffee drunk just before bed has barely been absorbed at lights-out but peaks while you are trying to fall asleep. Using the onset window also makes the projection monotonic in intake time, which is what lets the solver use simple bisection.
+
+The default **sleep-disruption threshold of 1.0 mg/L** is a cautious margin, not a measured value. Drake et al. (2013) found that 400 mg taken even 6 hours before bed cut objectively measured sleep by more than an hour; in this model that leaves about 4.3 mg/L at bedtime for a 70 kg adult with a 5 h half-life. No lower dose was tested, so no safe level is established. The default sits well below that, at the same level the phase model treats as the onset of a noticeable effect. It is editable on the Profile screen.
 
 ### Tolerance and withdrawal
 
