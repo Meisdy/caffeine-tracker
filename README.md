@@ -24,7 +24,8 @@ Installable as a Progressive Web App on Android. All data lives on the device in
 - **A live concentration curve** built from a pharmacokinetic model personalized to your body and metabolism.
 - **A phase readout** — rising, peak, productive, fading, crash risk, overloaded — derived from both the level and its slope.
 - **An advice card** pairing short, situation-based recommendations with the **sleep cutoff**: the last moment you can have another coffee and still be under your sleep-disruption threshold when you go to bed.
-- **Habit awareness** across days and weeks: rolling baselines, unusual-intake detection, a tolerance estimate, and withdrawal-headache warnings.
+- **Intake limit warnings** against the EFSA reference values: more than 400 mg in a day (200 mg during pregnancy), more than 200 mg within an hour, and a level already heading for the jitter range.
+- **Habit awareness** across days and weeks: rolling baselines, unusual-intake detection, a tolerance estimate, withdrawal-headache warnings, and how many of the last 7 nights were above the sleep threshold at bedtime.
 - **A plain-language explanation of the model** at the bottom of the Profile screen, including where the sleep threshold comes from.
 
 ---
@@ -79,6 +80,7 @@ Tolerance is an exponentially weighted mean of daily intake with a 7-day half-li
 
 - Linear superposition understates levels above roughly 600 mg, where caffeine kinetics turn non-linear.
 - Phase thresholds are heuristic anchors on the dose-response literature, not validated cutoffs.
+- Treating drinks within one hour as a single dose is a heuristic; EFSA does not define a stacking window.
 - The tolerance index is a proxy, not a measured receptor state.
 - Half-life is estimated from population data. Real individual half-lives span 2–10 h and genotype is not captured.
 - **Cutoff notifications are best-effort.** Chrome shelved the Notification Triggers API, so an installed PWA cannot guarantee a notification at an exact future time. The daily digest runs on Periodic Background Sync (browser-chosen cadence, roughly daily); the cutoff warning fires when the app is opened inside the warning window or from a timer while a tab is alive. The cutoff time itself is always shown on the Today screen.
@@ -133,7 +135,7 @@ To install on Android: open the Pages URL in Chrome, then **menu → Install app
 - Abernethy & Todd (1985) — oral contraceptive steroids and caffeine elimination
 - Drake et al. (2013), *Caffeine effects on sleep taken 0, 3, or 6 hours before going to bed*, J Clin Sleep Med 9(11):1195–1200 — sleep threshold
 - Juliano & Griffiths (2004), *A critical review of caffeine withdrawal*, Psychopharmacology 176:1–29 — withdrawal timing, tolerance onset and reversal
-- EFSA (2015), *Scientific Opinion on the safety of caffeine* — 400 mg daily and 200 mg single-dose reference values
+- EFSA (2015), *Scientific Opinion on the safety of caffeine* — 400 mg daily, 200 mg single-dose and 200 mg daily-in-pregnancy reference values
 
 ## License
 

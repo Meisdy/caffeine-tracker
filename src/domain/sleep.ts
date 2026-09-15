@@ -14,6 +14,45 @@ export function bedtimeAfter(profile: Profile, fromMs: number): number {
   return tomorrow + profile.bedtimeByWeekday[weekdayOf(tomorrow)] * MINUTE_MS;
 }
 
+export interface NightsOverThreshold {
+  overThreshold: number;
+  nightsJudged: number;
+}
+
+/**
+ * How many of the last `nightCount` bedtimes were above the sleep threshold.
+ *
+ * Nights before `trackingSinceMs` are skipped rather than counted as clear:
+ * an empty log before someone started tracking says nothing about their sleep.
+ */
+export function recentNightsOverThreshold(
+  doses: readonly Dose[],
+  profile: Profile,
+  nowMs: number,
+  nightCount: number,
+  trackingSinceMs: number,
+): NightsOverThreshold {
+  const bedtimes = pastBedtimes(profile, nowMs, nightCount).filter((bedtime) => bedtime >= trackingSinceMs);
+  const overThreshold = bedtimes.filter(
+    (bedtime) => projectedSleepLevel(doses, profile, bedtime) > profile.sleepDisruptionThresholdMgPerL,
+  ).length;
+  return { overThreshold, nightsJudged: bedtimes.length };
+}
+
+/** The most recent bedtimes whose sleep-onset window has already ended, newest first. */
+function pastBedtimes(profile: Profile, nowMs: number, nightCount: number): number[] {
+  const bedtimes: number[] = [];
+  const todayStart = startOfLocalDay(nowMs);
+  // One extra day covers a bedtime after midnight that belongs to yesterday's schedule.
+  for (let daysAgo = 0; daysAgo <= nightCount + 1 && bedtimes.length < nightCount; daysAgo++) {
+    // Anchoring at noon keeps the day right across daylight-saving changes.
+    const dayStart = startOfLocalDay(todayStart - daysAgo * DAY_MS + 12 * HOUR_MS);
+    const bedtime = dayStart + profile.bedtimeByWeekday[weekdayOf(dayStart)] * MINUTE_MS;
+    if (bedtime + SLEEP_ONSET_WINDOW_HOURS * HOUR_MS <= nowMs) bedtimes.push(bedtime);
+  }
+  return bedtimes;
+}
+
 /**
  * The worst concentration across sleep onset, not the instant of bedtime.
  *

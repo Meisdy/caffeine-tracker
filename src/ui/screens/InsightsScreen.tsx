@@ -7,6 +7,8 @@ import { rollingDailyStats, classifyTodayIntake, totalMgOnDay } from '../../doma
 import { toleranceState, withdrawalRisk as calculateWithdrawalRisk } from '../../domain/tolerance';
 import { personalHalfLifeHours, halfLifeFactorsFor } from '../../domain/halfLife';
 import { alertnessFit } from '../../domain/alertnessFit';
+import { recentNightsOverThreshold } from '../../domain/sleep';
+import { RECENT_NIGHTS_COUNT } from '../../domain/constants';
 import { DAY_MS, weekdayOf } from '../../domain/time';
 import type { IntakeDeviation, WithdrawalRisk } from '../../domain/types';
 import { AlertnessFitCard } from '../components/AlertnessFitCard';
@@ -53,11 +55,17 @@ export function InsightsScreen() {
     [ratings, intakes, profile, tolerance],
   );
 
+  const nights = useMemo(() => {
+    if (!profile) return null;
+    const firstIntakeAt = Math.min(...intakes.map((intake) => intake.takenAt));
+    return recentNightsOverThreshold(intakes, profile, now, RECENT_NIGHTS_COUNT, firstIntakeAt);
+  }, [intakes, profile, now]);
+
   const todayTotalMg = totalMgOnDay(intakes, now);
   const deviation = classifyTodayIntake(todayTotalMg, baseline30, weekdayOf(now));
   const withdrawal = calculateWithdrawalRisk(todayTotalMg, tolerance);
 
-  if (isLoading || !profile || !fit) {
+  if (isLoading || !profile || !fit || !nights) {
     return <p className="text-muted">Loading…</p>;
   }
 
@@ -67,6 +75,23 @@ export function InsightsScreen() {
   return (
     <div className="screen insights-screen">
       <AlertnessFitCard fit={fit} windowDays={HISTORY_WINDOW_DAYS} />
+
+      <section className="card">
+        <h2 className="section-title">Sleep nights (estimate)</h2>
+        {nights.nightsJudged === 0 ? (
+          <p className="text-muted">No nights to judge yet — this fills in once you have logged caffeine before a bedtime.</p>
+        ) : (
+          <>
+            <p className="insights-big-number">
+              {nights.overThreshold} of {nights.nightsJudged}
+            </p>
+            <p>
+              Recent nights where caffeine was still above your {profile.sleepDisruptionThresholdMgPerL.toFixed(1)}{' '}
+              mg/L sleep threshold at bedtime.
+            </p>
+          </>
+        )}
+      </section>
 
       <section className="card">
         <h2 className="section-title">Tolerance index (estimate)</h2>

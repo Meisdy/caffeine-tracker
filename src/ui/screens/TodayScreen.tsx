@@ -3,14 +3,14 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useProfile } from '../hooks/useProfile';
 import { useIntakes } from '../hooks/useIntakes';
 import { useNow } from '../hooks/useNow';
-import { curveOverWindow } from '../../domain/pharmacokinetics';
-import { phaseAt } from '../../domain/phases';
+import { curveOverWindow, peakPointBetween } from '../../domain/pharmacokinetics';
+import { jitterThresholdFor, phaseAt } from '../../domain/phases';
 import { bedtimeAfter, cutoffWindow, latestSafeIntakeTime, projectedSleepLevel } from '../../domain/sleep';
 import type { CutoffWindow } from '../../domain/sleep';
 import { rollingDailyStats, classifyTodayIntake, totalMgOnDay } from '../../domain/baseline';
 import { toleranceState, withdrawalRisk as calculateWithdrawalRisk } from '../../domain/tolerance';
 import { buildRecommendations } from '../../domain/recommendations';
-import { REFERENCE_COFFEE_MG } from '../../domain/constants';
+import { REFERENCE_COFFEE_MG, SINGLE_DOSE_WINDOW_HOURS, UPCOMING_PEAK_HORIZON_HOURS } from '../../domain/constants';
 import { DAY_MS, HOUR_MS, startOfLocalDay, weekdayOf } from '../../domain/time';
 import type { AdvisorSnapshot } from '../../domain/types';
 import { deleteFavorite, logIntake, recordAlertness, listFavorites } from '../../data/repositories';
@@ -59,6 +59,10 @@ export function TodayScreen() {
       (latest, intake) => (latest === null || intake.takenAt > latest ? intake.takenAt : latest),
       null,
     );
+    const singleDoseWindowStartMs = now - SINGLE_DOSE_WINDOW_HOURS * HOUR_MS;
+    const recentDoseMg = intakes
+      .filter((intake) => intake.takenAt > singleDoseWindowStartMs && intake.takenAt <= now)
+      .reduce((total, intake) => total + intake.caffeineMg, 0);
 
     return {
       now,
@@ -73,6 +77,10 @@ export function TodayScreen() {
       tolerance,
       withdrawalRisk: risk,
       lastIntakeAt,
+      isPregnant: profile.modifiers.pregnancy !== 'none',
+      recentDoseMg,
+      upcomingPeak: peakPointBetween(intakes, now, now + UPCOMING_PEAK_HORIZON_HOURS * HOUR_MS, profile),
+      jitterThresholdMgPerL: jitterThresholdFor(tolerance),
     };
   }, [profile, intakes, now]);
 

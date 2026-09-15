@@ -138,4 +138,11 @@ export interface AdvisorSnapshot {
   tolerance: ToleranceState;
   withdrawalRisk: WithdrawalRisk;
   lastIntakeAt: number | null;
+  isPregnant: boolean;
+  /** Everything taken within the single-dose window, which the body absorbs as one dose. */
+  recentDoseMg: number;
+  /** The highest level still ahead in the next few hours, from what is already logged. */
+  upcomingPeak: CurvePoint;
+  /** Tolerance-adjusted level above which jitteriness is likely. */
+  jitterThresholdMgPerL: number;
 }

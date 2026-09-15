@@ -91,8 +91,18 @@ export function peakBetween(
   toMs: number,
   profile: Profile,
 ): number {
-  return curveOverWindow(doses, fromMs, toMs, 5, profile).reduce(
-    (highest, point) => Math.max(highest, point.concentrationMgPerL),
-    0,
+  return peakPointBetween(doses, fromMs, toMs, profile).concentrationMgPerL;
+}
+
+/** The highest point of the curve in the window, and when it happens. */
+export function peakPointBetween(
+  doses: readonly Dose[],
+  fromMs: number,
+  toMs: number,
+  profile: Profile,
+): CurvePoint {
+  return curveOverWindow(doses, fromMs, toMs, 5, profile).reduce<CurvePoint>(
+    (highest, point) => (point.concentrationMgPerL > highest.concentrationMgPerL ? point : highest),
+    { at: fromMs, concentrationMgPerL: 0 },
   );
 }

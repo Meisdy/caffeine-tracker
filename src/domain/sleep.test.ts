@@ -4,10 +4,11 @@ import {
   cutoffWindow,
   latestSafeIntakeTime,
   projectedSleepLevel,
+  recentNightsOverThreshold,
   timeUntilBelow,
 } from './sleep';
 import { makeIntake, makeProfile } from './testFixtures';
-import { HOUR_MS } from './time';
+import { DAY_MS, HOUR_MS } from './time';
 
 const profile = makeProfile();
 const morning = new Date('2026-01-15T08:00:00').getTime();
@@ -126,5 +127,26 @@ describe('timeUntilBelow', () => {
 
   it('returns null when the level stays above the threshold past the horizon', () => {
     expect(timeUntilBelow([makeIntake(morning, 500)], 1, profile, atPeak, 2)).toBeNull();
+  });
+});
+
+describe('recentNightsOverThreshold', () => {
+  const nextMorning = new Date('2026-01-16T09:00:00').getTime();
+  const lateCoffee = makeIntake(new Date('2026-01-15T21:00:00').getTime(), 200);
+
+  it('counts a night with a late coffee as over the threshold', () => {
+    const nights = recentNightsOverThreshold([lateCoffee], profile, nextMorning, 7, morning - 10 * DAY_MS);
+    expect(nights).toEqual({ overThreshold: 1, nightsJudged: 7 });
+  });
+
+  it('skips nights before tracking started instead of counting them as clear', () => {
+    const nights = recentNightsOverThreshold([lateCoffee], profile, nextMorning, 7, morning);
+    expect(nights).toEqual({ overThreshold: 1, nightsJudged: 1 });
+  });
+
+  it('does not judge tonight before its sleep onset is over', () => {
+    const tonightLate = new Date('2026-01-16T23:30:00').getTime();
+    const nights = recentNightsOverThreshold([], profile, tonightLate, 7, nextMorning);
+    expect(nights.nightsJudged).toBe(0);
   });
 });

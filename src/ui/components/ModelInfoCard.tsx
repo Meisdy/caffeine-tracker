@@ -1,18 +1,48 @@
 import {
   BASELINE_HALF_LIFE_HOURS,
+  DAILY_REFERENCE_LIMIT_MG,
   DOSE_UNCERTAINTY,
   EFFECT_THRESHOLD_MG_PER_L,
   HALF_LIFE_UNCERTAINTY,
   JITTER_THRESHOLD_MG_PER_L,
   MAX_HALF_LIFE_HOURS,
   MIN_HALF_LIFE_HOURS,
+  PREGNANCY_DAILY_REFERENCE_LIMIT_MG,
   REFERENCE_COFFEE_MG,
+  SINGLE_DOSE_REFERENCE_LIMIT_MG,
+  SINGLE_DOSE_WINDOW_HOURS,
   SLEEP_ONSET_WINDOW_HOURS,
   TOLERANCE_HALF_LIFE_DAYS,
   TOLERANCE_SATURATION_MG_PER_DAY,
   VOLUME_OF_DISTRIBUTION_LITRES_PER_KG,
 } from '../../domain/constants';
 import { DEFAULT_PROFILE } from '../../data/entities';
+
+// Mirrors "Sources for the constants" in README.md; keep the two in step.
+const RESEARCH_SOURCES = [
+  {
+    citation: 'Blanchard & Sawers (1983), Eur J Clin Pharmacol 24:93–98',
+    usedFor: 'absorption, bioavailability, volume of distribution',
+  },
+  {
+    citation: 'Nehlig (2018), Interindividual differences in caffeine metabolism, Pharmacol Rev 70(2):384–411',
+    usedFor: 'half-life range and modifiers',
+  },
+  { citation: 'Parsons & Neims (1978)', usedFor: 'smoking and caffeine clearance' },
+  { citation: 'Abernethy & Todd (1985)', usedFor: 'oral contraceptives and caffeine elimination' },
+  {
+    citation: 'Drake et al. (2013), Caffeine effects on sleep taken 0, 3, or 6 hours before going to bed, J Clin Sleep Med 9(11):1195–1200',
+    usedFor: 'sleep threshold',
+  },
+  {
+    citation: 'Juliano & Griffiths (2004), A critical review of caffeine withdrawal, Psychopharmacology 176:1–29',
+    usedFor: 'withdrawal timing, tolerance onset and reversal',
+  },
+  {
+    citation: 'EFSA (2015), Scientific Opinion on the safety of caffeine',
+    usedFor: 'daily, single-dose and pregnancy reference values',
+  },
+];
 
 function toPercent(fraction: number): string {
   return `${Math.round(fraction * 100)}%`;
@@ -69,6 +99,17 @@ export function ModelInfoCard() {
       </details>
 
       <details>
+        <summary>Intake limits</summary>
+        <p>
+          Advice follows the EFSA (2015) reference values for healthy adults: up to {DAILY_REFERENCE_LIMIT_MG} mg
+          a day, and up to {SINGLE_DOSE_REFERENCE_LIMIT_MG} mg at once. Drinks within {SINGLE_DOSE_WINDOW_HOURS}{' '}
+          hour of each other count as one dose, because they are absorbed together. During pregnancy the daily
+          limit is {PREGNANCY_DAILY_REFERENCE_LIMIT_MG} mg. The app also warns when what you already drank is
+          heading for the jitter level, before it gets there.
+        </p>
+      </details>
+
+      <details>
         <summary>Tolerance and withdrawal</summary>
         <p>
           Tolerance is estimated from your recent daily intake, with each day counting half as much after{' '}
@@ -84,6 +125,17 @@ export function ModelInfoCard() {
           lower depending on beans, grind and machine, which outweighs every other error in the model. If you
           know the dose from your machine, enter it under Log → Custom and save it as a favorite.
         </p>
+      </details>
+
+      <details>
+        <summary>Sources</summary>
+        <ul className="model-info-sources">
+          {RESEARCH_SOURCES.map((source) => (
+            <li key={source.citation}>
+              {source.citation} <span className="text-muted">— {source.usedFor}</span>
+            </li>
+          ))}
+        </ul>
       </details>
     </section>
   );

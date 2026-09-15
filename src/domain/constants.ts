@@ -98,6 +98,20 @@ export const UNUSUAL_INTAKE_DEVIATIONS = 1.5;
 /** EFSA 2015 reference values for habitual daily and single-dose intake. */
 export const DAILY_REFERENCE_LIMIT_MG = 400;
 export const SINGLE_DOSE_REFERENCE_LIMIT_MG = 200;
+/** EFSA 2015: the daily amount that raises no concern for the fetus during pregnancy. */
+export const PREGNANCY_DAILY_REFERENCE_LIMIT_MG = 200;
+
+/**
+ * Drinks this close together are absorbed as one dose, so they are judged
+ * against the single-dose reference together. A heuristic, not an EFSA figure.
+ */
+export const SINGLE_DOSE_WINDOW_HOURS = 1;
+
+/** How far ahead a coming peak is looked for, enough to cover absorption of stacked drinks. */
+export const UPCOMING_PEAK_HORIZON_HOURS = 3;
+
+/** Nights the sleep insight looks back over. */
+export const RECENT_NIGHTS_COUNT = 7;
 
 /**
  * Multiplicative adjustments to the baseline half-life.

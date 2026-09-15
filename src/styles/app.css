@@ -317,6 +317,17 @@
   line-height: 1.5;
 }
 
+.model-info-sources {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.model-info-sources li + li {
+  margin-top: 6px;
+}
+
 /* Phase badge */
 
 .phase-badge {
