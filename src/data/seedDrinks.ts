@@ -279,15 +279,6 @@ export const SEED_DRINKS: Drink[] = [
     isSeeded: true,
   },
   {
-    id: 'dark-chocolate-70',
-    name: 'Dark Chocolate 70% (100g)',
-    category: 'chocolate',
-    defaultVolumeMl: null,
-    mgPer100Ml: null,
-    fixedMg: 80,
-    isSeeded: true,
-  },
-  {
     id: 'caffeine-tablet',
     name: 'Caffeine Tablet',
     category: 'supplement',
