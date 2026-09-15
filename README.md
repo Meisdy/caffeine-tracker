@@ -8,11 +8,15 @@
 
 Firefox for Android does not support PWA install and is unsupported. Chrome, Edge, Samsung Internet, Brave and Opera all work.
 
+**Install on iPhone / iPad:** open the link in **Safari**, tap **Open the app**, then **Share → Add to Home Screen** (on iOS 26, leave **Open as Web App** switched on). If *Add to Home Screen* is not in the list, scroll down and tap **Edit Actions** to add it. Since iOS 16.4, Chrome, Edge and Firefox on iOS offer the same option in their share menu.
+
+> On iOS, use the Home Screen icon rather than a Safari tab. Safari can delete a website's data after about 7 days without a visit, but a Home Screen web app keeps its own storage. The daily digest notification is not available on iOS, because Safari does not support Periodic Background Sync.
+
 ---
 
 A personal caffeine tracker that models what is actually in your bloodstream, not just how many cups you drank.
 
-Installable as a Progressive Web App on Android. All data lives on the device in IndexedDB — there is no backend, no account, and nothing is ever transmitted anywhere.
+Installable as a Progressive Web App on Android and iOS. All data lives on the device in IndexedDB — there is no backend, no account, and nothing is ever transmitted anywhere.
 
 **This is not medical advice.** Every number it shows is an estimate from a population model.
 
@@ -83,7 +87,7 @@ Tolerance is an exponentially weighted mean of daily intake with a 7-day half-li
 - Treating drinks within one hour as a single dose is a heuristic; EFSA does not define a stacking window.
 - The tolerance index is a proxy, not a measured receptor state.
 - Half-life is estimated from population data. Real individual half-lives span 2–10 h and genotype is not captured.
-- **Cutoff notifications are best-effort.** Chrome shelved the Notification Triggers API, so an installed PWA cannot guarantee a notification at an exact future time. The daily digest runs on Periodic Background Sync (browser-chosen cadence, roughly daily); the cutoff warning fires when the app is opened inside the warning window or from a timer while a tab is alive. The cutoff time itself is always shown on the Today screen.
+- **Cutoff notifications are best-effort.** Chrome shelved the Notification Triggers API, so an installed PWA cannot guarantee a notification at an exact future time. The daily digest runs on Periodic Background Sync (browser-chosen cadence, roughly daily); the cutoff warning fires when the app is opened inside the warning window or from a timer while a tab is alive. Safari on iOS has no Periodic Background Sync, so there is no daily digest there. The cutoff time itself is always shown on the Today screen.
 - Device-only storage means losing the device loses the data. Export regularly from the Profile screen.
 
 ---
@@ -123,7 +127,7 @@ One-time setup:
 2. In **Settings → Pages**, set the source to **GitHub Actions**.
 3. If the repository name is not `caffeine-tracker`, update `basePath` in `vite.config.ts` to match. A mismatch there is the most common way this setup silently breaks — the service worker registers against the wrong scope and the app will not install.
 
-To install on Android: open the Pages URL in Chrome, then **menu → Install app**. Chrome, Edge, Samsung Internet, Brave and Opera all work. Firefox for Android does not support PWA install and is unsupported.
+To install on Android: open the Pages URL in Chrome, then **menu → Install app**. Chrome, Edge, Samsung Internet, Brave and Opera all work. Firefox for Android does not support PWA install and is unsupported. On iOS, use **Share → Add to Home Screen** from Safari (or Chrome, Edge or Firefox on iOS 16.4+).
 
 ---
 
