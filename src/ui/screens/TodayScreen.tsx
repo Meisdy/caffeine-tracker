@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useProfile } from '../hooks/useProfile';
 import { useIntakes } from '../hooks/useIntakes';
@@ -13,7 +13,7 @@ import { buildRecommendations } from '../../domain/recommendations';
 import { REFERENCE_COFFEE_MG } from '../../domain/constants';
 import { DAY_MS, HOUR_MS, startOfLocalDay, weekdayOf } from '../../domain/time';
 import type { AdvisorSnapshot } from '../../domain/types';
-import { logIntake, recordAlertness, listFavorites } from '../../data/repositories';
+import { deleteFavorite, logIntake, recordAlertness, listFavorites } from '../../data/repositories';
 import type { Favorite } from '../../data/entities';
 import { startCutoffWatcher } from '../../notifications/cutoffWatcher';
 import { PhaseBadge } from '../components/PhaseBadge';
@@ -41,6 +41,7 @@ export function TodayScreen() {
 
   const intakes = useIntakes(historyStartMs, now);
   const favorites = useLiveQuery(() => listFavorites(), []) ?? [];
+  const [isEditingFavorites, setIsEditingFavorites] = useState(false);
 
   const snapshot = useMemo<AdvisorSnapshot | null>(() => {
     if (!profile) return null;
@@ -158,8 +159,20 @@ export function TodayScreen() {
       />
 
       <section className="card">
-        <h2 className="section-title">Favorites</h2>
-        <FavoriteGrid favorites={favorites} onLogFavorite={handleLogFavorite} />
+        <div className="section-header">
+          <h2 className="section-title">Favorites</h2>
+          {favorites.length > 0 ? (
+            <button type="button" className="text-button" onClick={() => setIsEditingFavorites(!isEditingFavorites)}>
+              {isEditingFavorites ? 'Done' : 'Edit'}
+            </button>
+          ) : null}
+        </div>
+        <FavoriteGrid
+          favorites={favorites}
+          isEditing={isEditingFavorites}
+          onLogFavorite={handleLogFavorite}
+          onDeleteFavorite={(favorite) => void deleteFavorite(favorite.id)}
+        />
       </section>
 
       <section className="card">

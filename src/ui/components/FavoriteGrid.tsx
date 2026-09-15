@@ -5,10 +5,13 @@ const LOGGED_FEEDBACK_MS = 1500;
 
 interface FavoriteGridProps {
   favorites: Favorite[];
+  /** While editing, a tap offers to delete the favorite instead of logging it. */
+  isEditing: boolean;
   onLogFavorite: (favorite: Favorite) => void;
+  onDeleteFavorite: (favorite: Favorite) => void;
 }
 
-export function FavoriteGrid({ favorites, onLogFavorite }: FavoriteGridProps) {
+export function FavoriteGrid({ favorites, isEditing, onLogFavorite, onDeleteFavorite }: FavoriteGridProps) {
   const [justLoggedId, setJustLoggedId] = useState<string | null>(null);
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -26,6 +29,11 @@ export function FavoriteGrid({ favorites, onLogFavorite }: FavoriteGridProps) {
     feedbackTimeoutRef.current = setTimeout(() => setJustLoggedId(null), LOGGED_FEEDBACK_MS);
   }
 
+  function requestDelete(favorite: Favorite) {
+    if (!window.confirm(`Delete favorite ${favorite.label}? Past intakes stay in History.`)) return;
+    onDeleteFavorite(favorite);
+  }
+
   if (favorites.length === 0) {
     return <p className="text-muted">No favorites yet — save one from the Log screen.</p>;
   }
@@ -33,6 +41,24 @@ export function FavoriteGrid({ favorites, onLogFavorite }: FavoriteGridProps) {
   return (
     <div className="favorite-grid">
       {favorites.map((favorite) => {
+        if (isEditing) {
+          return (
+            <button
+              key={favorite.id}
+              type="button"
+              className="favorite-tile is-editing"
+              aria-label={`Delete ${favorite.label}`}
+              onClick={() => requestDelete(favorite)}
+            >
+              <span className="favorite-tile-delete" aria-hidden="true">
+                ✕
+              </span>
+              <span className="favorite-tile-label">{favorite.label}</span>
+              <span className="favorite-tile-dose">{favorite.caffeineMg.toFixed(0)} mg</span>
+            </button>
+          );
+        }
+
         const isJustLogged = favorite.id === justLoggedId;
         return (
           <button

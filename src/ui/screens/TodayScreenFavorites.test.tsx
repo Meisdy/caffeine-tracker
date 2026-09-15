@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import 'fake-indexeddb/auto';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { TodayScreen } from './TodayScreen';
 import { initializeDatabase } from '../../data/database';
-import { saveFavorite } from '../../data/repositories';
+import { listFavorites, saveFavorite } from '../../data/repositories';
 
 const FAVORITE_LABEL = 'Morning Espresso';
 
@@ -33,5 +33,18 @@ describe('TodayScreen favorites', () => {
       expect(screen.getAllByText(FAVORITE_LABEL)).toHaveLength(2);
     });
     expect(screen.queryByText('No caffeine logged yet today.')).toBeNull();
+  });
+
+  it('deletes a favorite from edit mode without logging it', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(<TodayScreen />);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+    fireEvent.click(screen.getByRole('button', { name: `Delete ${FAVORITE_LABEL}` }));
+
+    await waitFor(async () => {
+      expect(await listFavorites()).toHaveLength(0);
+    });
+    expect(await screen.findByText('No favorites yet — save one from the Log screen.')).toBeTruthy();
   });
 });

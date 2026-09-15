@@ -20,7 +20,7 @@ Installable as a Progressive Web App on Android. All data lives on the device in
 
 ## What it does
 
-- **One-tap logging** from a grid of favorites, including per-machine doses — "Espresso, work Jura" can carry a different dose than "Espresso, café". A favorite can come from the catalog or from an exact dose entered under **Log → Custom**.
+- **One-tap logging** from a grid of favorites, including per-machine doses — "Espresso, work Jura" can carry a different dose than "Espresso, café". A favorite can come from the catalog or from an exact dose entered under **Log → Custom**. Remove favorites with **Edit** on the Today screen.
 - **A live concentration curve** built from a pharmacokinetic model personalized to your body and metabolism.
 - **A phase readout** — rising, peak, productive, fading, crash risk, overloaded — derived from both the level and its slope.
 - **An advice card** pairing short, situation-based recommendations with the **sleep cutoff**: the last moment you can have another coffee and still be under your sleep-disruption threshold when you go to bed.

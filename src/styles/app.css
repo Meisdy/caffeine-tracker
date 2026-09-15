@@ -101,6 +101,13 @@
   margin: 0 0 8px;
 }
 
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 /* Buttons & form controls */
 
 .button {
@@ -116,6 +123,17 @@
   font-size: 15px;
   font-weight: 600;
   margin-bottom: 8px;
+}
+
+.text-button {
+  min-height: var(--tap-target);
+  padding: 0 4px;
+  margin: -12px -4px -12px 0;
+  background: none;
+  border: none;
+  color: var(--accent-strong);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .button-primary {
@@ -496,6 +514,21 @@
 .favorite-tile.is-logged .favorite-tile-dose {
   color: var(--ok);
   font-weight: 600;
+}
+
+.favorite-tile.is-editing {
+  position: relative;
+  border-style: dashed;
+  padding-right: 32px;
+}
+
+.favorite-tile-delete {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 700;
 }
 
 @keyframes favorite-logged-pulse {
