@@ -266,7 +266,7 @@
   color: var(--text-muted);
 }
 
-.cutoff-caveat,
+.cutoff-projection,
 .dose-range-hint {
   font-size: 12px;
   line-height: 1.45;
@@ -379,7 +379,15 @@
   fill: var(--text);
 }
 
-/* Cutoff card */
+/* Advice card */
+
+.recommendation-list + .cutoff-summary {
+  margin-top: 12px;
+}
+
+.cutoff-summary p {
+  margin: 0;
+}
 
 .cutoff-warning {
   color: var(--danger);
@@ -389,7 +397,6 @@
   color: var(--ok);
 }
 
-/* Recommendation card */
 
 .recommendation-list {
   display: flex;

@@ -23,7 +23,7 @@ Installable as a Progressive Web App on Android. All data lives on the device in
 - **One-tap logging** from a grid of favorites, including per-machine doses — "Espresso, work Jura" can carry a different dose than "Espresso, café".
 - **A live concentration curve** built from a pharmacokinetic model personalized to your body and metabolism.
 - **A phase readout** — rising, peak, productive, fading, crash risk, overloaded — derived from both the level and its slope.
-- **A sleep cutoff**: the last moment you can have another coffee and still be under your sleep-disruption threshold when you go to bed.
+- **An advice card** pairing short, situation-based recommendations with the **sleep cutoff**: the last moment you can have another coffee and still be under your sleep-disruption threshold when you go to bed.
 - **Habit awareness** across days and weeks: rolling baselines, unusual-intake detection, a tolerance estimate, and withdrawal-headache warnings.
 
 ---

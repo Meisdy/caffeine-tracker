@@ -1,10 +1,8 @@
-import { DAILY_REFERENCE_LIMIT_MG, REFERENCE_COFFEE_MG } from './constants';
-import { MINUTE_MS } from './time';
+import { DAILY_REFERENCE_LIMIT_MG } from './constants';
 import type { AdvisorSnapshot, Recommendation, RecommendationSeverity } from './types';
 
 const MAXIMUM_SHOWN = 2;
 const HIGH_TOLERANCE_INDEX = 0.75;
-const CUTOFF_SOON_MS = 60 * MINUTE_MS;
 
 interface Rule {
   id: string;
@@ -31,9 +29,8 @@ const RULES: Rule[] = [
     severity: 'warning',
     applies: (snapshot) =>
       snapshot.projectedLevelAtBedtimeMgPerL > snapshot.sleepDisruptionThresholdMgPerL,
-    message: (snapshot) =>
-      `Projected level at bedtime is ${formatConcentration(snapshot.projectedLevelAtBedtimeMgPerL)}, ` +
-      `above your ${formatConcentration(snapshot.sleepDisruptionThresholdMgPerL)} sleep threshold. ` +
+    message: () =>
+      'You are already on track to be above your sleep threshold at bedtime. ' +
       'Expect a longer time to fall asleep and less deep sleep.',
   },
   {
@@ -42,13 +39,6 @@ const RULES: Rule[] = [
     applies: (snapshot) => snapshot.reading.phase === 'overloaded',
     message: () =>
       'Level is high enough that jitteriness and a raised heart rate are likely. Water and a break beat more caffeine.',
-  },
-  {
-    id: 'cutoff-passed',
-    severity: 'caution',
-    applies: (snapshot) => snapshot.cutoffAt === null,
-    message: () =>
-      `Anything more today is projected to reach bedtime. A decaf keeps the ritual without the cost.`,
   },
   {
     id: 'unusually-high',
@@ -65,15 +55,6 @@ const RULES: Rule[] = [
     message: (snapshot) =>
       `Averaging ${Math.round(snapshot.baseline.meanMgPerDay)} mg a day, above the ${DAILY_REFERENCE_LIMIT_MG} mg ` +
       'EFSA reference for habitual intake in healthy adults.',
-  },
-  {
-    id: 'cutoff-soon',
-    severity: 'info',
-    applies: (snapshot) =>
-      snapshot.cutoffAt !== null && snapshot.cutoffAt - snapshot.now <= CUTOFF_SOON_MS,
-    message: (snapshot) =>
-      `Last call: a ${REFERENCE_COFFEE_MG} mg coffee after ${formatClockTime(snapshot.cutoffAt ?? snapshot.now)} ` +
-      'is projected to still be with you at bedtime.',
   },
   {
     id: 'crash-incoming',
@@ -112,12 +93,4 @@ export function buildRecommendations(snapshot: AdvisorSnapshot): Recommendation[
   return RULES.filter((rule) => rule.applies(snapshot))
     .slice(0, MAXIMUM_SHOWN)
     .map((rule) => ({ id: rule.id, severity: rule.severity, message: rule.message(snapshot) }));
-}
-
-function formatConcentration(mgPerLitre: number): string {
-  return `${mgPerLitre.toFixed(1)} mg/L`;
-}
-
-function formatClockTime(atMs: number): string {
-  return new Date(atMs).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 }

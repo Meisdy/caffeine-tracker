@@ -18,8 +18,7 @@ import type { Favorite } from '../../data/entities';
 import { startCutoffWatcher } from '../../notifications/cutoffWatcher';
 import { PhaseBadge } from '../components/PhaseBadge';
 import { CurveChart } from '../components/CurveChart';
-import { CutoffCard } from '../components/CutoffCard';
-import { RecommendationCard } from '../components/RecommendationCard';
+import { AdviceCard } from '../components/AdviceCard';
 import { FavoriteGrid } from '../components/FavoriteGrid';
 import { IntakeList } from '../components/IntakeList';
 import { AlertnessPrompt } from '../components/AlertnessPrompt';
@@ -150,15 +149,13 @@ export function TodayScreen() {
         />
       </section>
 
-      <CutoffCard
+      <AdviceCard
+        recommendations={recommendations}
         cutoff={cutoff}
         bedtimeAt={snapshot.bedtimeAt}
         projectedBedtimeLevelMgPerL={snapshot.projectedLevelAtBedtimeMgPerL}
-        sleepThresholdMgPerL={profile.sleepDisruptionThresholdMgPerL}
         referenceDoseMg={REFERENCE_COFFEE_MG}
       />
-
-      <RecommendationCard recommendations={recommendations} />
 
       <section className="card">
         <h2 className="section-title">Favorites</h2>
