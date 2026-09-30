@@ -95,6 +95,7 @@ export function InsightsScreen() {
 
       <section className="card">
         <h2 className="section-title">Tolerance index (estimate)</h2>
+        <p className="text-muted">How much your recent caffeine habit has raised your tolerance, from 0% (none) to 100% (fully built up).</p>
         <p className="insights-big-number">{(tolerance.index * 100).toFixed(0)}%</p>
         <p>{describeToleranceIndex(tolerance.index)}</p>
       </section>

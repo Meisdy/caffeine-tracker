@@ -66,12 +66,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  min-height: var(--tap-target);
+  gap: 4px;
+  min-height: 60px;
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .tab-bar-button.is-active {
@@ -79,7 +79,7 @@
 }
 
 .tab-bar-icon {
-  font-size: 20px;
+  font-size: 26px;
   line-height: 1;
 }
 
