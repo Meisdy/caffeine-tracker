@@ -79,8 +79,14 @@
 }
 
 .tab-bar-icon {
-  font-size: 26px;
-  line-height: 1;
+  display: flex;
+  width: 24px;
+  height: 24px;
+}
+
+.tab-bar-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 /* Cards & sections */
@@ -132,7 +138,7 @@
   background: none;
   border: none;
   color: var(--accent-strong);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
 }
 
@@ -160,6 +166,7 @@
 
 .field select,
 .field input[type='text'],
+.field input[type='search'],
 .field input[type='datetime-local'],
 .field input[type='time'] {
   min-height: var(--tap-target);
@@ -168,6 +175,24 @@
   border: 1px solid var(--border);
   background: var(--surface-raised);
   color: var(--text);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.field input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  background: var(--text-muted);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 3l10 10M13 3L3 13' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 3l10 10M13 3L3 13' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  cursor: pointer;
 }
 
 .field-checkbox {
@@ -262,6 +287,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
 }
 
 .today-concentration {
@@ -279,7 +306,7 @@
 
 /* Understated, so the figure reads as approximate without shouting about it. */
 .today-concentration .approximation {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 500;
   color: var(--text-muted);
 }
@@ -509,7 +536,7 @@
 
 .favorite-tile-label {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .favorite-tile-dose {
@@ -538,7 +565,7 @@
   top: 8px;
   right: 10px;
   color: var(--danger);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -570,7 +597,7 @@
   background: var(--surface-raised);
   color: var(--text);
   text-align: left;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .drink-result.is-active {
@@ -817,7 +844,7 @@
   flex-direction: column;
   gap: 4px;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 /* Profile screen */
