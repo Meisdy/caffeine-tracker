@@ -261,11 +261,22 @@ export const SEED_DRINKS: Drink[] = [
     isSeeded: true,
   },
   {
-    id: 'diet-cola',
-    name: 'Diet Cola',
+    // Coca-Cola Zero carries the same caffeine as Coca-Cola Classic —
+    // only the sugar differs.
+    id: 'coca-cola',
+    name: 'Coca-Cola',
     category: 'soda',
     defaultVolumeMl: 330,
-    mgPer100Ml: 12.6,
+    mgPer100Ml: 9.6,
+    fixedMg: null,
+    isSeeded: true,
+  },
+  {
+    id: 'coca-cola-zero',
+    name: 'Coca-Cola Zero',
+    category: 'soda',
+    defaultVolumeMl: 330,
+    mgPer100Ml: 9.6,
     fixedMg: null,
     isSeeded: true,
   },
