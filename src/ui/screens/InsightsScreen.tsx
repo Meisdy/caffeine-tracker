@@ -74,7 +74,12 @@ export function InsightsScreen() {
 
   return (
     <div className="screen insights-screen">
-      <AlertnessFitCard fit={fit} windowDays={HISTORY_WINDOW_DAYS} />
+      <section className="card">
+        <h2 className="section-title">Tolerance index (estimate)</h2>
+        <p className="text-muted">How much your recent caffeine habit has raised your tolerance, from 0% (none) to 100% (fully built up).</p>
+        <p className="insights-big-number">{(tolerance.index * 100).toFixed(0)}%</p>
+        <p>{describeToleranceIndex(tolerance.index)}</p>
+      </section>
 
       <section className="card">
         <h2 className="section-title">Sleep nights (estimate)</h2>
@@ -94,13 +99,6 @@ export function InsightsScreen() {
       </section>
 
       <section className="card">
-        <h2 className="section-title">Tolerance index (estimate)</h2>
-        <p className="text-muted">How much your recent caffeine habit has raised your tolerance, from 0% (none) to 100% (fully built up).</p>
-        <p className="insights-big-number">{(tolerance.index * 100).toFixed(0)}%</p>
-        <p>{describeToleranceIndex(tolerance.index)}</p>
-      </section>
-
-      <section className="card">
         <h2 className="section-title">Rolling averages</h2>
         <p>
           {RECENT_WINDOW_DAYS}-day average: <strong>{baseline7.meanMgPerDay.toFixed(0)} mg/day</strong>
@@ -110,6 +108,8 @@ export function InsightsScreen() {
         </p>
         <p className="text-muted">Based on {baseline30.daysOfHistory} day(s) of history.</p>
       </section>
+
+      <AlertnessFitCard fit={fit} windowDays={HISTORY_WINDOW_DAYS} />
 
       <section className="card">
         <h2 className="section-title">Today vs. usual</h2>
