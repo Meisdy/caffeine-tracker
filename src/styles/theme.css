@@ -4,10 +4,15 @@
   --surface-raised: #2e251e;
   --border: #3b3027;
   --text: #f2e9e1;
-  --text-muted: #a8968a;
+  /* Lightened from #a8968a: the original sat at ~5.3:1 on raised surfaces,
+     legal but low for text used as heavily as this — bumped to a
+     comfortable ~7.5:1 everywhere it appears. */
+  --text-muted: #c2b6aa;
   --accent: #c98a3e;
   --accent-strong: #e8a85c;
-  --danger: #c9564a;
+  /* Lightened from #c9564a, which fell to 3.5:1 on raised surfaces —
+     below the 4.5:1 AA floor for text. */
+  --danger: #e07a6c;
   --caution: #d9a441;
   --ok: #6f9e5f;
   --radius: 14px;
