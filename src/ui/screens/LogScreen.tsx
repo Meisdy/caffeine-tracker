@@ -157,19 +157,24 @@ export function LogScreen() {
             />
           </label>
 
-          <label className="field">
-            <span>Drink</span>
-            <select value={selectedDrinkId} onChange={(event) => setSelectedDrinkId(event.target.value)}>
-              <option value="" disabled>
-                {matchingDrinks.length === 0 ? 'No matching drinks' : 'Choose a drink…'}
-              </option>
-              {matchingDrinks.map((drink) => (
-                <option key={drink.id} value={drink.id}>
+          <div className="drink-results" role="listbox" aria-label="Drink">
+            {matchingDrinks.length === 0 ? (
+              <p className="text-muted">No matching drinks</p>
+            ) : (
+              matchingDrinks.map((drink) => (
+                <button
+                  key={drink.id}
+                  type="button"
+                  role="option"
+                  aria-selected={drink.id === selectedDrinkId}
+                  className={`drink-result ${drink.id === selectedDrinkId ? 'is-active' : ''}`}
+                  onClick={() => setSelectedDrinkId(drink.id)}
+                >
                   {drink.name}
-                </option>
-              ))}
-            </select>
-          </label>
+                </button>
+              ))
+            )}
+          </div>
 
           {selectedDrink && selectedDrink.fixedMg === null ? (
             <NumberField label="Volume" unit="ml" value={volumeMl} onChange={setVolumeMl} min={0} />

@@ -554,6 +554,32 @@
   }
 }
 
+.drink-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.drink-result {
+  min-height: var(--tap-target);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text);
+  text-align: left;
+  font-size: 14px;
+}
+
+.drink-result.is-active {
+  border-color: var(--accent-strong);
+  background: var(--accent-subtle, var(--surface-raised));
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
 /* Intake list */
 
 .intake-list {
