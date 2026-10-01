@@ -230,8 +230,36 @@
 
 /* Floating tab bar */
 
+/*
+ * The bar floats over the scrolling content instead of sitting in its own
+ * strip, so content passes beneath the blur rather than ending in a hard edge;
+ * the ::after fade hands the last bit of content off to the page background.
+ */
+[data-design='volt'] .app {
+  position: relative;
+}
+
+[data-design='volt'] .app::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(112px + var(--safe-bottom));
+  background: linear-gradient(to top, var(--background) 30%, transparent);
+  pointer-events: none;
+}
+
+[data-design='volt'] .app-content {
+  padding-bottom: calc(104px + var(--safe-bottom));
+}
+
 [data-design='volt'] .tab-bar {
-  margin: 0 12px calc(10px + var(--safe-bottom));
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(10px + var(--safe-bottom));
+  z-index: 1;
   padding: 4px;
   border: 1px solid var(--border);
   border-radius: 999px;

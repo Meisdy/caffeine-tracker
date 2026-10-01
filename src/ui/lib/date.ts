@@ -9,6 +9,9 @@
 import { DAY_MS } from '../../domain/time';
 import type { Weekday } from '../../domain/types';
 
+/** Weekday numbers (0 = Sunday, as `Date.getDay()`) in display order, Monday first. */
+export const WEEKDAYS_MONDAY_FIRST: Weekday[] = [1, 2, 3, 4, 5, 6, 0];
+
 const clockTimeFormatter = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
 const shortDateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
 const weekdayLabelFormatter = new Intl.DateTimeFormat(undefined, { weekday: 'short' });

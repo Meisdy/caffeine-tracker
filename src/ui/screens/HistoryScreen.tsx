@@ -3,13 +3,11 @@ import { useIntakes } from '../hooks/useIntakes';
 import { useNow } from '../hooks/useNow';
 import { rollingDailyStats } from '../../domain/baseline';
 import { DAY_MS } from '../../domain/time';
-import type { Weekday } from '../../domain/types';
 import { updateIntake, deleteIntake } from '../../data/repositories';
 import { IntakeList } from '../components/IntakeList';
-import { formatDayKeyShort, formatWeekdayLabel } from '../lib/date';
+import { WEEKDAYS_MONDAY_FIRST, formatDayKeyShort, formatWeekdayLabel } from '../lib/date';
 
 const HISTORY_WINDOW_DAYS = 30;
-const WEEKDAYS: Weekday[] = [0, 1, 2, 3, 4, 5, 6];
 
 export function HistoryScreen() {
   const [now] = useNow();
@@ -19,7 +17,7 @@ export function HistoryScreen() {
   const baseline = useMemo(() => rollingDailyStats(intakes, now, HISTORY_WINDOW_DAYS), [intakes, now]);
 
   const maxDailyTotalMg = Math.max(...baseline.dailyTotals.map((day) => day.totalMg), 1);
-  const maxWeekdayMeanMg = Math.max(...WEEKDAYS.map((weekday) => baseline.meanByWeekday[weekday] ?? 0), 1);
+  const maxWeekdayMeanMg = Math.max(...WEEKDAYS_MONDAY_FIRST.map((weekday) => baseline.meanByWeekday[weekday] ?? 0), 1);
 
   const pastIntakes = useMemo(() => [...intakes].sort((a, b) => b.takenAt - a.takenAt), [intakes]);
 
@@ -47,7 +45,7 @@ export function HistoryScreen() {
       <section className="card">
         <h2 className="section-title">By day of week</h2>
         <div className="weekday-breakdown">
-          {WEEKDAYS.map((weekday) => {
+          {WEEKDAYS_MONDAY_FIRST.map((weekday) => {
             const meanMg = baseline.meanByWeekday[weekday];
             return (
               <div key={weekday} className="weekday-row">

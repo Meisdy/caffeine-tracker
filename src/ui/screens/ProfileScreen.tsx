@@ -9,11 +9,10 @@ import { exportToJson, importFromJson } from '../../data/backup';
 import { areNotificationsSupported, requestNotificationPermission, enableDailyDigest } from '../../notifications/registration';
 import { NumberField } from '../components/NumberField';
 import { ModelInfoCard } from '../components/ModelInfoCard';
-import { formatWeekdayLabel } from '../lib/date';
+import { WEEKDAYS_MONDAY_FIRST, formatWeekdayLabel } from '../lib/date';
 import { DESIGN_OPTIONS, loadDesign, saveDesign } from '../lib/design';
 import type { Design } from '../lib/design';
 
-const WEEKDAYS: Weekday[] = [0, 1, 2, 3, 4, 5, 6];
 const SEX_OPTIONS: Sex[] = ['female', 'male', 'other'];
 const PREGNANCY_OPTIONS: PregnancyStage[] = ['none', 'first', 'second', 'third'];
 const LIVER_IMPAIRMENT_OPTIONS: LiverImpairment[] = ['none', 'mild', 'moderate', 'severe'];
@@ -258,7 +257,7 @@ export function ProfileScreen() {
 
       <section className="card">
         <h2 className="section-title">Bedtime</h2>
-        {WEEKDAYS.map((weekday) => {
+        {WEEKDAYS_MONDAY_FIRST.map((weekday) => {
           const { time, isAfterMidnight } = bedtimeMinutesToParts(currentProfile.bedtimeByWeekday[weekday]);
           return (
             <div key={weekday} className="bedtime-row">
