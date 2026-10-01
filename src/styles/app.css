@@ -438,7 +438,6 @@
 
 /* Decorations used only by the volt design; see volt.css. */
 .hero-title,
-.curve-danger-zone,
 .curve-now-dot {
   display: none;
 }

@@ -143,13 +143,14 @@
   fill-opacity: 1;
 }
 
+/* A neutral fill: lime at low alpha over near-black turns olive-brown. */
 [data-design='volt'] .curve-area-stop-top,
 [data-design='volt'] .curve-area-stop-bottom {
-  stop-color: var(--accent);
+  stop-color: var(--text);
 }
 
 [data-design='volt'] .curve-area-stop-top {
-  stop-opacity: 0.5;
+  stop-opacity: 0.16;
 }
 
 [data-design='volt'] .curve-area-stop-bottom {
@@ -162,27 +163,23 @@
   filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 70%, transparent));
 }
 
-/* Fades out toward the threshold: a flat red tint on near-black reads as brown. */
-[data-design='volt'] .curve-danger-zone {
-  display: block;
-  fill: url(#curve-danger-gradient);
-}
-
-[data-design='volt'] .curve-danger-stop-top,
-[data-design='volt'] .curve-danger-stop-bottom {
-  stop-color: var(--danger);
-}
-
-[data-design='volt'] .curve-danger-stop-top {
-  stop-opacity: 0.18;
-}
-
-[data-design='volt'] .curve-danger-stop-bottom {
-  stop-opacity: 0;
+/* Spans the full card width; the plot keeps its own inner margin. */
+[data-design='volt'] .curve-chart {
+  width: calc(100% + 32px);
+  margin: 0 -16px;
 }
 
 [data-design='volt'] .curve-axis-line {
   stroke: var(--card-border);
+}
+
+[data-design='volt'] .curve-intake-tick {
+  stroke-width: 1;
+  stroke-opacity: 0.5;
+}
+
+[data-design='volt'] .curve-threshold-label {
+  fill-opacity: 0.8;
 }
 
 [data-design='volt'] .curve-threshold-line,

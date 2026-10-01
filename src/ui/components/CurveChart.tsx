@@ -8,7 +8,7 @@ import { formatClockTime } from '../lib/date';
  */
 const CHART_WIDTH = 320;
 const CHART_HEIGHT = 180;
-const MARGIN = { top: 18, right: 8, bottom: 22, left: 34 };
+const MARGIN = { top: 18, right: 10, bottom: 22, left: 10 };
 const PLOT_WIDTH = CHART_WIDTH - MARGIN.left - MARGIN.right;
 const PLOT_HEIGHT = CHART_HEIGHT - MARGIN.top - MARGIN.bottom;
 const PLOT_BOTTOM = MARGIN.top + PLOT_HEIGHT;
@@ -92,19 +92,7 @@ export function CurveChart({
           <stop offset="0" className="curve-area-stop-top" />
           <stop offset="1" className="curve-area-stop-bottom" />
         </linearGradient>
-        <linearGradient id="curve-danger-gradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" className="curve-danger-stop-top" />
-          <stop offset="1" className="curve-danger-stop-bottom" />
-        </linearGradient>
       </defs>
-
-      <rect
-        x={MARGIN.left}
-        y={MARGIN.top}
-        width={PLOT_WIDTH}
-        height={thresholdY - MARGIN.top}
-        className="curve-danger-zone"
-      />
 
       <line x1={MARGIN.left} y1={PLOT_BOTTOM} x2={MARGIN.left + PLOT_WIDTH} y2={PLOT_BOTTOM} className="curve-axis-line" />
 

@@ -146,7 +146,7 @@ export function TodayScreen() {
       </section>
 
       <section className="card">
-        <h2 className="section-title">Next 24 hours</h2>
+        <h2 className="section-title">Caffeine curve</h2>
         <CurveChart
           curve={curve}
           intakes={intakes}
