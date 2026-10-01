@@ -4,13 +4,17 @@ import { registerSW } from 'virtual:pwa-register';
 import { initializeDatabase } from './data/database';
 import { requestPersistentStorage } from './data/persistence';
 import App from './App';
+import { applyDesign, loadDesign } from './ui/lib/design';
 import './styles/theme.css';
 import './styles/app.css';
+import './styles/volt.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error('Root element "#root" not found.');
 }
+
+applyDesign(loadDesign());
 
 const root = createRoot(rootElement);
 root.render(<div className="splash">Loading…</div>);

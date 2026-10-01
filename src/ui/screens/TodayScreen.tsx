@@ -16,7 +16,7 @@ import type { AdvisorSnapshot } from '../../domain/types';
 import { deleteFavorite, logIntake, recordAlertness, listFavorites } from '../../data/repositories';
 import type { Favorite } from '../../data/entities';
 import { startCutoffWatcher } from '../../notifications/cutoffWatcher';
-import { PhaseBadge } from '../components/PhaseBadge';
+import { PhaseBadge, phaseTone } from '../components/PhaseBadge';
 import { CurveChart } from '../components/CurveChart';
 import { AdviceCard } from '../components/AdviceCard';
 import { FavoriteGrid } from '../components/FavoriteGrid';
@@ -134,7 +134,7 @@ export function TodayScreen() {
 
   return (
     <div className="screen today-screen">
-      <section className="card today-current-level">
+      <section className={`card today-current-level hero-${phaseTone(snapshot.reading.phase)}`}>
         <p className="today-concentration">
           <span className="approximation" aria-hidden="true">
             ~

@@ -87,6 +87,21 @@ export function CurveChart({
       role="img"
       aria-label={ariaLabel}
     >
+      <defs>
+        <linearGradient id="curve-area-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" className="curve-area-stop-top" />
+          <stop offset="1" className="curve-area-stop-bottom" />
+        </linearGradient>
+      </defs>
+
+      <rect
+        x={MARGIN.left}
+        y={MARGIN.top}
+        width={PLOT_WIDTH}
+        height={thresholdY - MARGIN.top}
+        className="curve-danger-zone"
+      />
+
       <line x1={MARGIN.left} y1={PLOT_BOTTOM} x2={MARGIN.left + PLOT_WIDTH} y2={PLOT_BOTTOM} className="curve-axis-line" />
 
       <line
@@ -135,6 +150,12 @@ export function CurveChart({
           <text x={timeToX(nowMs)} y={MARGIN.top - 6} textAnchor="middle" className="curve-marker-label curve-now-label">
             Now
           </text>
+          <circle
+            cx={timeToX(nowMs)}
+            cy={concentrationToY(currentConcentrationMgPerL)}
+            r={4.5}
+            className="curve-now-dot"
+          />
         </>
       ) : null}
 

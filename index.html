@@ -3,11 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#16120f" />
+    <meta name="theme-color" content="#07090b" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f3f5f1" media="(prefers-color-scheme: light)" />
     <meta name="description" content="Personal caffeine intake tracker with a pharmacokinetic model." />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icon-192.png" />
     <title>Caffeine Tracker</title>
+    <script>
+      // Keep in sync with src/ui/lib/design.ts. Runs before first paint so the
+      // chosen design never flashes the other one.
+      try {
+        var storedDesign = localStorage.getItem('caffeine-tracker-design');
+        document.documentElement.dataset.design = storedDesign === 'coffee' ? 'coffee' : 'volt';
+      } catch (error) {
+        document.documentElement.dataset.design = 'volt';
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

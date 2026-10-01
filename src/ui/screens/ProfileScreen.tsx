@@ -10,6 +10,8 @@ import { areNotificationsSupported, requestNotificationPermission, enableDailyDi
 import { NumberField } from '../components/NumberField';
 import { ModelInfoCard } from '../components/ModelInfoCard';
 import { formatWeekdayLabel } from '../lib/date';
+import { DESIGN_OPTIONS, loadDesign, saveDesign } from '../lib/design';
+import type { Design } from '../lib/design';
 
 const WEEKDAYS: Weekday[] = [0, 1, 2, 3, 4, 5, 6];
 const SEX_OPTIONS: Sex[] = ['female', 'male', 'other'];
@@ -35,6 +37,7 @@ export function ProfileScreen() {
   const { profile, saveProfile, isLoading } = useProfile();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
+  const [design, setDesign] = useState<Design>(loadDesign);
 
   useEffect(() => {
     let isMounted = true;
@@ -97,6 +100,11 @@ export function ProfileScreen() {
     setBackupMessage('Exported backup.');
   }
 
+  function handleSelectDesign(nextDesign: Design) {
+    saveDesign(nextDesign);
+    setDesign(nextDesign);
+  }
+
   async function handleImportFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = '';
@@ -115,6 +123,24 @@ export function ProfileScreen() {
 
   return (
     <div className="screen profile-screen">
+      <section className="card">
+        <h2 className="section-title">Appearance</h2>
+        <div className="segmented-control" role="group" aria-label="Design">
+          {DESIGN_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              className={design === option.id ? 'is-active' : ''}
+              aria-pressed={design === option.id}
+              onClick={() => handleSelectDesign(option.id)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        <p className="field-hint">Volt is the new look; Coffee is the original warm brown. Stored on this device only.</p>
+      </section>
+
       <section className="card">
         <h2 className="section-title">About you</h2>
         <NumberField

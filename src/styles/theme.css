@@ -1,26 +1,74 @@
+/*
+ * Two designs share every component: "volt" (default) and "coffee" (the
+ * original brown palette). `data-design` on <html> picks one — set by an
+ * inline script in index.html before first paint, then by the Profile setting.
+ * Volt additionally follows the OS light/dark preference; coffee is dark-only.
+ */
 :root {
-  --background: #16120f;
-  --surface: #221b16;
-  --surface-raised: #2e251e;
-  --border: #3b3027;
-  --text: #f2e9e1;
-  /* Lightened from #a8968a: the original sat at ~5.3:1 on raised surfaces,
-     legal but low for text used as heavily as this — bumped to a
-     comfortable ~7.5:1 everywhere it appears. */
-  --text-muted: #c2b6aa;
-  --accent: #c98a3e;
-  --accent-strong: #e8a85c;
-  /* Lightened from #c9564a, which fell to 3.5:1 on raised surfaces —
-     below the 4.5:1 AA floor for text. */
-  --danger: #e07a6c;
-  --caution: #d9a441;
-  --ok: #6f9e5f;
   --radius: 14px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
   --tap-target: 48px;
   --font-stack:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+:root[data-design='coffee'] {
+  color-scheme: dark;
+  --background: #16120f;
+  --surface: #221b16;
+  --surface-raised: #2e251e;
+  --border: #3b3027;
+  --card-border: var(--border);
+  --text: #f2e9e1;
+  --text-muted: #c2b6aa;
+  --accent: #c98a3e;
+  --accent-strong: #e8a85c;
+  --accent-subtle: #2e251e;
+  --danger: #e07a6c;
+  --caution: #d9a441;
+  --ok: #6f9e5f;
+}
+
+:root[data-design='volt'] {
+  color-scheme: dark;
+  --radius: 18px;
+  --background: #07090b;
+  --surface: #0f1317;
+  --surface-raised: #171c22;
+  /* ~3:1 so form controls keep a visible edge; cards use the quieter hairline. */
+  --border: #606b77;
+  --card-border: #1d242b;
+  --text: #f4f7f2;
+  --text-muted: #a9b2bb;
+  --accent: #c6ff3d;
+  --accent-strong: #d9ff7a;
+  --accent-subtle: #1b2410;
+  --danger: #ff6b5e;
+  --caution: #ffc247;
+  --ok: #39e0b0;
+  --glow-strength: 30%;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-design='volt'] {
+    color-scheme: light;
+    --background: #f3f5f1;
+    --surface: #ffffff;
+    --surface-raised: #e8ece4;
+    --border: #7d8777;
+    --card-border: #dde2d8;
+    --text: #10140d;
+    --text-muted: #444d3f;
+    /* Lime is unreadable on white, so light volt swaps to a deep green. */
+    --accent: #4d7c0f;
+    --accent-strong: #3a5f0b;
+    --accent-subtle: #e6f2cf;
+    --danger: #b3261e;
+    --caution: #8a5a00;
+    --ok: #0f7a55;
+    --glow-strength: 16%;
+  }
 }
 
 *,

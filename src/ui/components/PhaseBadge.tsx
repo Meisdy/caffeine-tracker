@@ -1,7 +1,7 @@
 import type { PhaseName, PhaseReading } from '../../domain/types';
 import { PHASE_LABELS, PHASE_DESCRIPTIONS } from '../../domain/phases';
 
-type Tone = 'ok' | 'accent' | 'caution' | 'danger';
+export type Tone = 'ok' | 'accent' | 'caution' | 'danger';
 
 // Purely a display concern — which of the app's four status colors a given
 // pharmacokinetic phase reads as. Not a domain judgement.
@@ -15,12 +15,16 @@ const PHASE_TONE: Record<PhaseName, Tone> = {
   overloaded: 'danger',
 };
 
+export function phaseTone(phase: PhaseName): Tone {
+  return PHASE_TONE[phase];
+}
+
 interface PhaseBadgeProps {
   reading: PhaseReading;
 }
 
 export function PhaseBadge({ reading }: PhaseBadgeProps) {
-  const tone = PHASE_TONE[reading.phase];
+  const tone = phaseTone(reading.phase);
 
   return (
     <div className={`phase-badge phase-badge-${tone}`}>
