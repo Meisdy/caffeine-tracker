@@ -135,6 +135,7 @@ export function TodayScreen() {
   return (
     <div className="screen today-screen">
       <section className={`card today-current-level hero-${phaseTone(snapshot.reading.phase)}`}>
+        <h2 className="section-title hero-title">Caffeine in your body</h2>
         <p className="today-concentration">
           <span className="approximation" aria-hidden="true">
             ~

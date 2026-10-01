@@ -40,7 +40,7 @@
   --border: #606b77;
   --card-border: #1d242b;
   --text: #f4f7f2;
-  --text-muted: #a9b2bb;
+  --text-muted: #c4ccd4;
   --accent: #c6ff3d;
   --accent-strong: #d9ff7a;
   --accent-subtle: #1b2410;
@@ -59,7 +59,7 @@
     --border: #7d8777;
     --card-border: #dde2d8;
     --text: #10140d;
-    --text-muted: #444d3f;
+    --text-muted: #363e32;
     /* Lime is unreadable on white, so light volt swaps to a deep green. */
     --accent: #4d7c0f;
     --accent-strong: #3a5f0b;

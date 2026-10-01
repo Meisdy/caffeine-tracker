@@ -18,6 +18,7 @@ const SEX_OPTIONS: Sex[] = ['female', 'male', 'other'];
 const PREGNANCY_OPTIONS: PregnancyStage[] = ['none', 'first', 'second', 'third'];
 const LIVER_IMPAIRMENT_OPTIONS: LiverImpairment[] = ['none', 'mild', 'moderate', 'severe'];
 const MINUTES_PER_DAY = 1440;
+const REPOSITORY_URL = 'https://github.com/Meisdy/caffeine-tracker';
 
 function bedtimeMinutesToParts(totalMinutes: number): { time: string; isAfterMidnight: boolean } {
   const isAfterMidnight = totalMinutes >= MINUTES_PER_DAY;
@@ -346,6 +347,17 @@ export function ProfileScreen() {
       </section>
 
       <ModelInfoCard />
+
+      <p className="text-muted app-version">
+        Caffeine Tracker v{__APP_VERSION__} ·{' '}
+        <a href={`${REPOSITORY_URL}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer">
+          AGPL-3.0
+        </a>{' '}
+        ·{' '}
+        <a href={REPOSITORY_URL} target="_blank" rel="noopener noreferrer">
+          GitHub
+        </a>
+      </p>
     </div>
   );
 }

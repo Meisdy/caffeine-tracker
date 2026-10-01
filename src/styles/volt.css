@@ -31,18 +31,49 @@
 /* Section titles */
 
 [data-design='volt'] .section-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+
+/* A short accent bar gives every card heading the same recognisable anchor. */
+[data-design='volt'] .section-title::before {
+  content: '';
+  flex: none;
+  width: 4px;
+  height: 1em;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+[data-design='volt'] .field span:first-child {
+  color: var(--text);
+  font-weight: 600;
+}
+
+[data-design='volt'] .curve-axis-label,
+[data-design='volt'] .curve-threshold-label {
+  font-size: 10px;
 }
 
 /* Hero */
 
 [data-design='volt'] .today-current-level {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 28px 22px 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'title badge'
+    'number number'
+    'description description';
+  align-items: center;
+  gap: 0 12px;
+  padding: 22px 22px 24px;
   border-color: var(--card-border);
   box-shadow: none;
   background:
@@ -50,7 +81,15 @@
     var(--surface);
 }
 
+[data-design='volt'] .hero-title {
+  display: flex;
+  grid-area: title;
+  margin: 0;
+}
+
 [data-design='volt'] .today-concentration {
+  grid-area: number;
+  margin: 18px 0 10px;
   font-size: 76px;
   font-weight: 300;
   line-height: 1;
@@ -64,17 +103,25 @@
   letter-spacing: 0;
 }
 
+/* Raised with `top` rather than vertical-align so the line height stays put. */
 [data-design='volt'] .today-concentration .approximation {
-  font-size: 32px;
+  position: relative;
+  top: -0.12em;
+  margin-right: 4px;
+  font-size: 56px;
   font-weight: 300;
 }
 
+/* The badge's label and description become grid items of the hero. */
 [data-design='volt'] .phase-badge {
-  padding: 0;
+  display: contents;
+  /* app.css right-aligns the badge text, and display: contents still passes that on. */
   text-align: left;
 }
 
 [data-design='volt'] .phase-badge-label {
+  grid-area: badge;
+  justify-self: end;
   padding: 5px 14px;
   border-radius: 999px;
   color: var(--tone);
@@ -83,8 +130,9 @@
 }
 
 [data-design='volt'] .phase-badge-description {
+  grid-area: description;
   max-width: none;
-  margin-top: 10px;
+  margin: 0;
   font-size: 14px;
 }
 
@@ -114,14 +162,42 @@
   filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 70%, transparent));
 }
 
+/* Fades out toward the threshold: a flat red tint on near-black reads as brown. */
 [data-design='volt'] .curve-danger-zone {
   display: block;
-  fill: var(--danger);
-  fill-opacity: 0.09;
+  fill: url(#curve-danger-gradient);
+}
+
+[data-design='volt'] .curve-danger-stop-top,
+[data-design='volt'] .curve-danger-stop-bottom {
+  stop-color: var(--danger);
+}
+
+[data-design='volt'] .curve-danger-stop-top {
+  stop-opacity: 0.18;
+}
+
+[data-design='volt'] .curve-danger-stop-bottom {
+  stop-opacity: 0;
+}
+
+[data-design='volt'] .curve-axis-line {
+  stroke: var(--card-border);
+}
+
+[data-design='volt'] .curve-threshold-line,
+[data-design='volt'] .curve-bedtime-line {
+  stroke-width: 1;
+  stroke-opacity: 0.6;
+}
+
+[data-design='volt'] .curve-bedtime-line {
+  stroke-dasharray: 2 3;
 }
 
 [data-design='volt'] .curve-now-line {
   stroke-width: 1;
+  stroke-opacity: 0.5;
   stroke-dasharray: 2 3;
 }
 

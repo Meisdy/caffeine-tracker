@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { version } from './package.json' with { type: 'json' };
 
 // Served from https://<user>.github.io/caffeine-tracker/app/, so every asset URL
 // and the service worker scope must be prefixed. Mismatch here silently breaks
@@ -10,6 +11,9 @@ const basePath = '/caffeine-tracker/app/';
 
 export default defineConfig({
   base: basePath,
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+  },
   build: {
     outDir: 'dist/app',
   },

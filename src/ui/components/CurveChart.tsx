@@ -92,6 +92,10 @@ export function CurveChart({
           <stop offset="0" className="curve-area-stop-top" />
           <stop offset="1" className="curve-area-stop-bottom" />
         </linearGradient>
+        <linearGradient id="curve-danger-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" className="curve-danger-stop-top" />
+          <stop offset="1" className="curve-danger-stop-bottom" />
+        </linearGradient>
       </defs>
 
       <rect

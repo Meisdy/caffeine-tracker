@@ -9,6 +9,9 @@
 .app-content {
   flex: 1;
   overflow-y: auto;
+  /* Without this, absolutely positioned descendants (the hidden file input on
+     Profile) are placed against the page, which then scrolls past the app. */
+  position: relative;
   padding: 16px 16px calc(16px + var(--safe-bottom));
 }
 
@@ -434,6 +437,7 @@
 }
 
 /* Decorations used only by the volt design; see volt.css. */
+.hero-title,
 .curve-danger-zone,
 .curve-now-dot {
   display: none;
@@ -886,4 +890,14 @@
   flex: 1;
   text-align: center;
   cursor: pointer;
+}
+
+.app-version a {
+  color: inherit;
+}
+
+.app-version {
+  font-size: 12px;
+  text-align: center;
+  margin: 8px 0 0;
 }
