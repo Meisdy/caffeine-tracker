@@ -37,8 +37,9 @@ export default defineConfig({
         scope: basePath,
         display: 'standalone',
         orientation: 'portrait',
-        background_color: '#16120f',
-        theme_color: '#16120f',
+        // A manifest is static, so the install splash can only match the default design (volt, dark).
+        background_color: '#07090b',
+        theme_color: '#07090b',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },

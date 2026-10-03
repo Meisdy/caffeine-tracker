@@ -19,6 +19,15 @@
         document.documentElement.dataset.design = 'volt';
       }
     </script>
+    <style>
+      /* Paints the chosen design's background before the app stylesheet loads.
+         Keep the colors in sync with --background in src/styles/theme.css. */
+      html[data-design='coffee'] { background: #16120f; }
+      html[data-design='volt'] { background: #07090b; }
+      @media (prefers-color-scheme: light) {
+        html[data-design='volt'] { background: #f3f5f1; }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
