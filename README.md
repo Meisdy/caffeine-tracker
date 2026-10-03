@@ -25,6 +25,8 @@ Installable as a Progressive Web App on Android and iOS. All data lives on the d
 ## What it does
 
 - **One-tap logging** from a grid of favorites, including per-machine doses — "Espresso, work Jura" can carry a different dose than "Espresso, café". A favorite can come from the catalog or from an exact dose entered under **Log → Custom**. Remove favorites with **Edit** on the Today screen.
+- **Habits.** Under **Profile → Habits**, pick a favorite, the days and a time, e.g. espresso at work, Mon–Fri, 10:00. Today then shows it under **Planned today** with **Log** and **Skip**. Nothing is logged automatically. Upcoming habits count toward the cutoff and the forecast curve (dashed); untick the box on that card to ignore them.
+- **What if?** Pick a drink and a time on Today to see whether it would still be fine for your sleep, plus the latest safe time and the peak.
 - **A live concentration curve** built from a pharmacokinetic model personalized to your body and metabolism.
 - **A phase readout** — rising, peak, productive, fading, crash risk, overloaded — derived from both the level and its slope.
 - **An advice card** pairing short, situation-based recommendations with the **sleep cutoff**: the last moment you can have another coffee and still be under your sleep-disruption threshold when you go to bed.
