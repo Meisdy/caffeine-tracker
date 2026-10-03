@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 import type { Table } from 'dexie';
-import type { Intake } from '../domain/types';
+import type { Habit, Intake } from '../domain/types';
 import type {
   AlertnessRating,
   Drink,
@@ -16,6 +16,7 @@ export class CaffeineDatabase extends Dexie {
   drinks!: Table<Drink, string>;
   sources!: Table<Source, string>;
   favorites!: Table<Favorite, string>;
+  habits!: Table<Habit, string>;
   intakes!: Table<Intake, string>;
   alertnessRatings!: Table<AlertnessRating, string>;
   profile!: Table<StoredProfile, string>;
@@ -32,6 +33,10 @@ export class CaffeineDatabase extends Dexie {
       alertnessRatings: 'id, ratedAt',
       profile: 'id',
       settings: 'id',
+    });
+
+    this.version(2).stores({
+      habits: 'id, favoriteId',
     });
   }
 }

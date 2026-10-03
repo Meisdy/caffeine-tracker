@@ -900,3 +900,43 @@
   text-align: center;
   margin: 8px 0 0;
 }
+
+.whatif-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.planned-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.planned-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.planned-label {
+  flex: 1;
+}
+
+.habit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.curve-planned-line {
+  fill: none;
+  stroke: var(--accent-strong);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  opacity: 0.8;
+}

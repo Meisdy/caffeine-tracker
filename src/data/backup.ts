@@ -1,4 +1,4 @@
-import type { Intake } from '../domain/types';
+import type { Habit, Intake } from '../domain/types';
 import type {
   AlertnessRating,
   Drink,
@@ -17,6 +17,8 @@ interface DatabaseBackup {
   drinks: Drink[];
   sources: Source[];
   favorites: Favorite[];
+  /** Absent in backups made before habits existed. */
+  habits?: Habit[];
   intakes: Intake[];
   alertnessRatings: AlertnessRating[];
   profile: StoredProfile[];
@@ -30,6 +32,7 @@ export async function exportToJson(): Promise<string> {
     drinks: await database.drinks.toArray(),
     sources: await database.sources.toArray(),
     favorites: await database.favorites.toArray(),
+    habits: await database.habits.toArray(),
     intakes: await database.intakes.toArray(),
     alertnessRatings: await database.alertnessRatings.toArray(),
     profile: await database.profile.toArray(),
@@ -55,6 +58,7 @@ export async function importFromJson(json: string): Promise<void> {
       database.drinks,
       database.sources,
       database.favorites,
+      database.habits,
       database.intakes,
       database.alertnessRatings,
       database.profile,
@@ -65,6 +69,7 @@ export async function importFromJson(json: string): Promise<void> {
         database.drinks.clear(),
         database.sources.clear(),
         database.favorites.clear(),
+        database.habits.clear(),
         database.intakes.clear(),
         database.alertnessRatings.clear(),
         database.profile.clear(),
@@ -75,6 +80,7 @@ export async function importFromJson(json: string): Promise<void> {
         database.drinks.bulkAdd(backup.drinks),
         database.sources.bulkAdd(backup.sources),
         database.favorites.bulkAdd(backup.favorites),
+        database.habits.bulkAdd(backup.habits ?? []),
         database.intakes.bulkAdd(backup.intakes),
         database.alertnessRatings.bulkAdd(backup.alertnessRatings),
         database.profile.bulkAdd(backup.profile),

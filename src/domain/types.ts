@@ -45,6 +45,16 @@ export interface Dose {
   caffeineMg: number;
 }
 
+/** A recurring intake: "this favorite, on these weekdays, at this time of day". */
+export interface Habit {
+  id: string;
+  favoriteId: string;
+  weekdays: Weekday[];
+  minutesSinceMidnight: number;
+  /** `localDayKey` of the day the user skipped it; only that one day is affected. */
+  skippedOn: string | null;
+}
+
 /**
  * `caffeineMg` is denormalized on purpose: recalibrating a favorite must never
  * rewrite the dose recorded for drinks already consumed.

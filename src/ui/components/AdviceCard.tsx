@@ -51,7 +51,7 @@ export function AdviceCard({
  * Collapses to a single time when the uncertainty does not move the answer,
  * which happens whenever the window is clipped by bedtime itself.
  */
-function formatCutoffWindow({ earliest, estimate, latest }: CutoffWindow): string {
+export function formatCutoffWindow({ earliest, estimate, latest }: CutoffWindow): string {
   if (estimate === null) return '';
   if (earliest === null) return formatClockTime(estimate);
 

@@ -11,14 +11,18 @@ import { rollingDailyStats, classifyTodayIntake, totalMgOnDay } from '../../doma
 import { toleranceState, withdrawalRisk as calculateWithdrawalRisk } from '../../domain/tolerance';
 import { buildRecommendations } from '../../domain/recommendations';
 import { REFERENCE_COFFEE_MG, SINGLE_DOSE_WINDOW_HOURS, UPCOMING_PEAK_HORIZON_HOURS } from '../../domain/constants';
-import { DAY_MS, HOUR_MS, startOfLocalDay, weekdayOf } from '../../domain/time';
+import { DAY_MS, HOUR_MS, localDayKey, startOfLocalDay, weekdayOf } from '../../domain/time';
+import { pendingHabitsToday, plannedDoses } from '../../domain/habits';
+import type { PendingHabit } from '../../domain/habits';
 import type { AdvisorSnapshot } from '../../domain/types';
-import { deleteFavorite, logIntake, recordAlertness, listFavorites } from '../../data/repositories';
+import { deleteFavorite, listFavorites, listHabits, logIntake, recordAlertness, skipHabitOn } from '../../data/repositories';
 import type { Favorite } from '../../data/entities';
 import { startCutoffWatcher } from '../../notifications/cutoffWatcher';
 import { PhaseBadge, phaseTone } from '../components/PhaseBadge';
 import { CurveChart } from '../components/CurveChart';
 import { AdviceCard } from '../components/AdviceCard';
+import { PlannedTodayCard } from '../components/PlannedTodayCard';
+import { WhatIfCard } from '../components/WhatIfCard';
 import { FavoriteGrid } from '../components/FavoriteGrid';
 import { IntakeList } from '../components/IntakeList';
 import { AlertnessPrompt } from '../components/AlertnessPrompt';
@@ -42,6 +46,21 @@ export function TodayScreen() {
   const intakes = useIntakes(historyStartMs, now);
   const favorites = useLiveQuery(() => listFavorites(), []) ?? [];
   const [isEditingFavorites, setIsEditingFavorites] = useState(false);
+  const habits = useLiveQuery(() => listHabits(), []) ?? [];
+  const [countHabitsInForecast, setCountHabitsInForecast] = useState(true);
+
+  const pendingHabits = useMemo(
+    () => pendingHabitsToday(habits, favorites, intakes, now),
+    [habits, favorites, intakes, now],
+  );
+  // Level and cutoff answer "what happens to my sleep", so they include what
+  // the user usually does next; phase and tolerance describe the present and
+  // stay on what was actually logged.
+  const forecastDoses = useMemo(
+    () => (countHabitsInForecast ? [...intakes, ...plannedDoses(pendingHabits, now)] : intakes),
+    [countHabitsInForecast, intakes, pendingHabits, now],
+  );
+  const hasPlannedDoses = forecastDoses.length > intakes.length;
 
   const snapshot = useMemo<AdvisorSnapshot | null>(() => {
     if (!profile) return null;
@@ -53,8 +72,8 @@ export function TodayScreen() {
     const todayTotalMg = totalMgOnDay(intakes, now);
     const deviation = classifyTodayIntake(todayTotalMg, baseline, weekdayOf(now));
     const risk = calculateWithdrawalRisk(todayTotalMg, tolerance);
-    const cutoffAt = latestSafeIntakeTime(intakes, REFERENCE_COFFEE_MG, profile, now, bedtimeAt);
-    const projectedLevelAtBedtimeMgPerL = projectedSleepLevel(intakes, profile, bedtimeAt);
+    const cutoffAt = latestSafeIntakeTime(forecastDoses, REFERENCE_COFFEE_MG, profile, now, bedtimeAt);
+    const projectedLevelAtBedtimeMgPerL = projectedSleepLevel(forecastDoses, profile, bedtimeAt);
     const lastIntakeAt = intakes.reduce<number | null>(
       (latest, intake) => (latest === null || intake.takenAt > latest ? intake.takenAt : latest),
       null,
@@ -82,17 +101,22 @@ export function TodayScreen() {
       upcomingPeak: peakPointBetween(intakes, now, now + UPCOMING_PEAK_HORIZON_HOURS * HOUR_MS, profile),
       jitterThresholdMgPerL: jitterThresholdFor(tolerance),
     };
-  }, [profile, intakes, now]);
+  }, [profile, intakes, forecastDoses, now]);
 
   const curve = useMemo(() => {
     if (!profile) return [];
     return curveOverWindow(intakes, curveFromMs, curveToMs, CURVE_STEP_MINUTES, profile);
   }, [profile, intakes, curveFromMs, curveToMs]);
 
+  const plannedCurve = useMemo(() => {
+    if (!profile || !hasPlannedDoses) return [];
+    return curveOverWindow(forecastDoses, curveFromMs, curveToMs, CURVE_STEP_MINUTES, profile);
+  }, [profile, hasPlannedDoses, forecastDoses, curveFromMs, curveToMs]);
+
   const cutoff = useMemo<CutoffWindow>(() => {
     if (!profile) return { earliest: null, estimate: null, latest: null };
-    return cutoffWindow(intakes, REFERENCE_COFFEE_MG, profile, now, bedtimeAfter(profile, now));
-  }, [profile, intakes, now]);
+    return cutoffWindow(forecastDoses, REFERENCE_COFFEE_MG, profile, now, bedtimeAfter(profile, now));
+  }, [profile, forecastDoses, now]);
 
   const todaysIntakes = useMemo(() => {
     const todayStartMs = startOfLocalDay(now);
@@ -128,6 +152,26 @@ export function TodayScreen() {
     refreshNow();
   }
 
+  async function handleLogHabit(entry: PendingHabit) {
+    const favorite = favorites.find((candidate) => candidate.id === entry.habit.favoriteId);
+    if (!favorite) return;
+    await logIntake({
+      caffeineMg: favorite.caffeineMg,
+      label: favorite.label,
+      // An overdue habit is logged when it was due, not when it was confirmed.
+      takenAt: Math.min(entry.scheduledAt, Date.now()),
+      volumeMl: favorite.volumeMl,
+      favoriteId: favorite.id,
+      drinkId: favorite.drinkId,
+      sourceId: favorite.sourceId,
+    });
+    refreshNow();
+  }
+
+  async function handleSkipHabit(entry: PendingHabit) {
+    await skipHabitOn(entry.habit.id, localDayKey(now));
+  }
+
   async function handleRateAlertness(rating: 1 | 2 | 3 | 4 | 5) {
     await recordAlertness(rating);
   }
@@ -149,6 +193,7 @@ export function TodayScreen() {
         <h2 className="section-title">Caffeine curve</h2>
         <CurveChart
           curve={curve}
+          plannedCurve={plannedCurve}
           intakes={intakes}
           fromMs={curveFromMs}
           toMs={curveToMs}
@@ -165,6 +210,23 @@ export function TodayScreen() {
         bedtimeAt={snapshot.bedtimeAt}
         projectedBedtimeLevelMgPerL={snapshot.projectedLevelAtBedtimeMgPerL}
         referenceDoseMg={REFERENCE_COFFEE_MG}
+      />
+
+      <PlannedTodayCard
+        pending={pendingHabits}
+        nowMs={now}
+        countInForecast={countHabitsInForecast}
+        onToggleCountInForecast={setCountHabitsInForecast}
+        onLog={(entry) => void handleLogHabit(entry)}
+        onSkip={(entry) => void handleSkipHabit(entry)}
+      />
+
+      <WhatIfCard
+        doses={forecastDoses}
+        profile={profile}
+        favorites={favorites}
+        nowMs={now}
+        bedtimeAt={snapshot.bedtimeAt}
       />
 
       <section className="card">

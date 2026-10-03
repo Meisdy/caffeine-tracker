@@ -8,6 +8,7 @@ import type { Settings } from '../../data/entities';
 import { exportToJson, importFromJson } from '../../data/backup';
 import { areNotificationsSupported, requestNotificationPermission, enableDailyDigest } from '../../notifications/registration';
 import { NumberField } from '../components/NumberField';
+import { HabitsCard } from '../components/HabitsCard';
 import { ModelInfoCard } from '../components/ModelInfoCard';
 import { WEEKDAYS_MONDAY_FIRST, formatWeekdayLabel } from '../lib/date';
 import { DESIGN_OPTIONS, loadDesign, saveDesign } from '../lib/design';
@@ -254,6 +255,8 @@ export function ProfileScreen() {
           </ul>
         )}
       </section>
+
+      <HabitsCard />
 
       <section className="card">
         <h2 className="section-title">Bedtime</h2>

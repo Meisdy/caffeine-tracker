@@ -4,7 +4,7 @@
  * details (Dexie, table shapes, singleton keys) stay in one place.
  */
 
-import type { Intake, Profile } from '../domain/types';
+import type { Habit, Intake, Profile } from '../domain/types';
 import type { AlertnessRating, Drink, Favorite, Settings, Source } from './entities';
 import { DEFAULT_PROFILE, DEFAULT_SETTINGS } from './entities';
 import { database } from './database';
@@ -72,8 +72,30 @@ export async function saveFavorite(
   return resolvedFavorite;
 }
 
+/** A habit without its favorite has no dose to plan, so they go together. */
 export async function deleteFavorite(id: string): Promise<void> {
-  await database.favorites.delete(id);
+  await database.transaction('rw', [database.favorites, database.habits], async () => {
+    await database.favorites.delete(id);
+    await database.habits.where('favoriteId').equals(id).delete();
+  });
+}
+
+export async function listHabits(): Promise<Habit[]> {
+  return database.habits.toArray();
+}
+
+export async function saveHabit(habit: Omit<Habit, 'id'> & { id?: string }): Promise<Habit> {
+  const resolvedHabit: Habit = { ...habit, id: habit.id ?? crypto.randomUUID() };
+  await database.habits.put(resolvedHabit);
+  return resolvedHabit;
+}
+
+export async function deleteHabit(id: string): Promise<void> {
+  await database.habits.delete(id);
+}
+
+export async function skipHabitOn(id: string, dayKey: string): Promise<void> {
+  await database.habits.update(id, { skippedOn: dayKey });
 }
 
 export async function listDrinks(): Promise<Drink[]> {

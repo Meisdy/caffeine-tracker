@@ -19,6 +19,8 @@ const VERTICAL_HEADROOM_FACTOR = 1.15;
 
 interface CurveChartProps {
   curve: CurvePoint[];
+  /** The same window with planned habit doses added; only its future part is drawn. */
+  plannedCurve?: CurvePoint[];
   intakes: Intake[];
   fromMs: number;
   toMs: number;
@@ -30,6 +32,7 @@ interface CurveChartProps {
 
 export function CurveChart({
   curve,
+  plannedCurve = [],
   intakes,
   fromMs,
   toMs,
@@ -50,14 +53,22 @@ export function CurveChart({
     (peak, point) => (point.concentrationMgPerL > peak.concentrationMgPerL ? point : peak),
     firstPoint,
   );
+  const plannedFuture = plannedCurve.filter((point) => point.at >= nowMs);
+  const highestPlanned = plannedFuture.reduce((highest, point) => Math.max(highest, point.concentrationMgPerL), 0);
   const maxConcentration =
-    Math.max(peakPoint.concentrationMgPerL, sleepThresholdMgPerL, 1) * VERTICAL_HEADROOM_FACTOR;
+    Math.max(peakPoint.concentrationMgPerL, highestPlanned, sleepThresholdMgPerL, 1) * VERTICAL_HEADROOM_FACTOR;
 
   const timeToX = (atMs: number): number => MARGIN.left + ((atMs - fromMs) / timeSpanMs) * PLOT_WIDTH;
   const concentrationToY = (mgPerL: number): number =>
     MARGIN.top + PLOT_HEIGHT - (mgPerL / maxConcentration) * PLOT_HEIGHT;
 
   const linePathD = curve
+    .map(
+      (point, index) =>
+        `${index === 0 ? 'M' : 'L'} ${timeToX(point.at)} ${concentrationToY(point.concentrationMgPerL)}`,
+    )
+    .join(' ');
+  const plannedPathD = plannedFuture
     .map(
       (point, index) =>
         `${index === 0 ? 'M' : 'L'} ${timeToX(point.at)} ${concentrationToY(point.concentrationMgPerL)}`,
@@ -109,6 +120,7 @@ export function CurveChart({
 
       <path d={areaPathD} className="curve-area" />
       <path d={linePathD} className="curve-line" />
+      {plannedPathD ? <path d={plannedPathD} className="curve-planned-line" /> : null}
 
       {intakeTicks.map((intake) => (
         <line
