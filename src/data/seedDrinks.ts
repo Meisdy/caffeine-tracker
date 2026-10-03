@@ -6,6 +6,10 @@
  * Monster, Club Mate, etc.). They approximate real-world drinks, not any
  * single verified source per item — good enough for dose estimation, not
  * for medical dosing decisions.
+ *
+ * Espresso-based drinks get their caffeine from the shots, not the volume:
+ * americano, cappuccino and latte assume one shot (~64 mg), flat white two.
+ * A lungo is one dose pulled longer, so only a little above an espresso.
  */
 
 import type { Drink, Source } from './entities';
@@ -43,7 +47,7 @@ export const SEED_DRINKS: Drink[] = [
     name: 'Lungo',
     category: 'coffee',
     defaultVolumeMl: 110,
-    mgPer100Ml: 100,
+    mgPer100Ml: 73,
     fixedMg: null,
     isSeeded: true,
   },
@@ -64,7 +68,7 @@ export const SEED_DRINKS: Drink[] = [
     name: 'Americano',
     category: 'coffee',
     defaultVolumeMl: 240,
-    mgPer100Ml: 40,
+    mgPer100Ml: 27,
     fixedMg: null,
     isSeeded: true,
   },
@@ -82,7 +86,7 @@ export const SEED_DRINKS: Drink[] = [
     name: 'Cappuccino',
     category: 'coffee',
     defaultVolumeMl: 180,
-    mgPer100Ml: 60,
+    mgPer100Ml: 35,
     fixedMg: null,
     isSeeded: true,
   },
@@ -91,7 +95,7 @@ export const SEED_DRINKS: Drink[] = [
     name: 'Latte',
     category: 'coffee',
     defaultVolumeMl: 240,
-    mgPer100Ml: 45,
+    mgPer100Ml: 27,
     fixedMg: null,
     isSeeded: true,
   },
@@ -127,7 +131,7 @@ export const SEED_DRINKS: Drink[] = [
     name: 'Cold Brew',
     category: 'coffee',
     defaultVolumeMl: 350,
-    mgPer100Ml: 55,
+    mgPer100Ml: 45,
     fixedMg: null,
     isSeeded: true,
   },
@@ -173,7 +177,7 @@ export const SEED_DRINKS: Drink[] = [
     name: 'Chai Latte',
     category: 'tea',
     defaultVolumeMl: 240,
-    mgPer100Ml: 16,
+    mgPer100Ml: 20,
     fixedMg: null,
     isSeeded: true,
   },
@@ -261,13 +265,13 @@ export const SEED_DRINKS: Drink[] = [
     isSeeded: true,
   },
   {
-    // Coca-Cola Zero carries the same caffeine as Coca-Cola Classic —
-    // only the sugar differs.
+    // Swiss label value. Coca-Cola Zero carries the same caffeine as
+    // Coca-Cola Classic — only the sugar differs.
     id: 'coca-cola',
     name: 'Coca-Cola',
     category: 'soda',
     defaultVolumeMl: 330,
-    mgPer100Ml: 9.6,
+    mgPer100Ml: 10,
     fixedMg: null,
     isSeeded: true,
   },
@@ -276,13 +280,13 @@ export const SEED_DRINKS: Drink[] = [
     name: 'Coca-Cola Zero',
     category: 'soda',
     defaultVolumeMl: 330,
-    mgPer100Ml: 9.6,
+    mgPer100Ml: 10,
     fixedMg: null,
     isSeeded: true,
   },
   {
     id: 'energy-gel',
-    name: 'Energy Gel',
+    name: 'Caffeinated Energy Gel',
     category: 'supplement',
     defaultVolumeMl: null,
     mgPer100Ml: null,
