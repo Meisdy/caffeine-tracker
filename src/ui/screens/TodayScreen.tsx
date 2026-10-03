@@ -189,21 +189,6 @@ export function TodayScreen() {
         <PhaseBadge reading={snapshot.reading} />
       </section>
 
-      <section className="card">
-        <h2 className="section-title">Caffeine curve</h2>
-        <CurveChart
-          curve={curve}
-          plannedCurve={plannedCurve}
-          intakes={intakes}
-          fromMs={curveFromMs}
-          toMs={curveToMs}
-          nowMs={now}
-          bedtimeAtMs={snapshot.bedtimeAt}
-          sleepThresholdMgPerL={profile.sleepDisruptionThresholdMgPerL}
-          currentConcentrationMgPerL={snapshot.reading.concentrationMgPerL}
-        />
-      </section>
-
       <AdviceCard
         recommendations={recommendations}
         cutoff={cutoff}
@@ -221,14 +206,6 @@ export function TodayScreen() {
         onSkip={(entry) => void handleSkipHabit(entry)}
       />
 
-      <WhatIfCard
-        doses={forecastDoses}
-        profile={profile}
-        favorites={favorites}
-        nowMs={now}
-        bedtimeAt={snapshot.bedtimeAt}
-      />
-
       <section className="card">
         <div className="section-header">
           <h2 className="section-title">Favorites</h2>
@@ -243,6 +220,29 @@ export function TodayScreen() {
           isEditing={isEditingFavorites}
           onLogFavorite={handleLogFavorite}
           onDeleteFavorite={(favorite) => void deleteFavorite(favorite.id)}
+        />
+      </section>
+
+      <WhatIfCard
+        doses={forecastDoses}
+        profile={profile}
+        favorites={favorites}
+        nowMs={now}
+        bedtimeAt={snapshot.bedtimeAt}
+      />
+
+      <section className="card">
+        <h2 className="section-title">Caffeine curve</h2>
+        <CurveChart
+          curve={curve}
+          plannedCurve={plannedCurve}
+          intakes={intakes}
+          fromMs={curveFromMs}
+          toMs={curveToMs}
+          nowMs={now}
+          bedtimeAtMs={snapshot.bedtimeAt}
+          sleepThresholdMgPerL={profile.sleepDisruptionThresholdMgPerL}
+          currentConcentrationMgPerL={snapshot.reading.concentrationMgPerL}
         />
       </section>
 
