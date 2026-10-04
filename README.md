@@ -2,6 +2,8 @@
 
 ### ☕ [**Open the app →**](https://meisdy.github.io/caffeine-tracker/)
 
+▶ [Watch the 43-second tour](https://meisdy.github.io/caffeine-tracker/howto.html) of setup and use.
+
 **Install on Android:** open that link in **Chrome**, tap **Open the app**, then **⋮ → Install app**. It lands on your home screen and runs offline from then on.
 
 > Tapping the link from inside the GitHub mobile app opens a webview, which cannot install a PWA. Use **⋮ → Open in browser** first, or paste the URL into Chrome.
