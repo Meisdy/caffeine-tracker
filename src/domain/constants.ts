@@ -49,6 +49,13 @@ export const FADING_THRESHOLD_MULTIPLE = 1.4;
  */
 export const SLEEP_ONSET_WINDOW_HOURS = 1.5;
 
+/**
+ * The profile has a bedtime but no wake-up time, so a night is assumed to last
+ * this long. Until it is over, sleep advice stays on the night in progress
+ * instead of jumping ahead to tomorrow's bedtime.
+ */
+export const ASSUMED_SLEEP_HOURS = 8;
+
 /** Dose the cutoff card asks about: "can I still have one more coffee?" */
 export const REFERENCE_COFFEE_MG = 80;
 

@@ -5,6 +5,7 @@ import {
   latestSafeIntakeTime,
   projectedSleepLevel,
   recentNightsOverThreshold,
+  sleepAdviceBedtime,
   timeUntilBelow,
 } from './sleep';
 import { makeIntake, makeProfile } from './testFixtures';
@@ -34,6 +35,43 @@ describe('bedtimeAfter', () => {
     const oneInTheMorning = new Date('2026-01-17T01:00:00').getTime();
 
     expect(bedtimeAfter(lateOnFriday, fridayEvening)).toBe(oneInTheMorning);
+  });
+});
+
+describe('sleepAdviceBedtime', () => {
+  it('returns tonight when bedtime is still ahead', () => {
+    expect(sleepAdviceBedtime(profile, morning)).toBe(bedtime);
+  });
+
+  it('stays on the night in progress just after bedtime', () => {
+    const justAfterBedtime = new Date('2026-01-15T23:08:00').getTime();
+    expect(sleepAdviceBedtime(profile, justAfterBedtime)).toBe(bedtime);
+  });
+
+  it('stays on the night in progress after midnight', () => {
+    const earlyMorning = new Date('2026-01-16T05:00:00').getTime();
+    expect(sleepAdviceBedtime(profile, earlyMorning)).toBe(bedtime);
+  });
+
+  it('moves to the next night once the assumed sleep is over', () => {
+    const nextMorning = new Date('2026-01-16T07:30:00').getTime();
+    const nextNight = new Date('2026-01-16T23:00:00').getTime();
+    expect(sleepAdviceBedtime(profile, nextMorning)).toBe(nextNight);
+  });
+
+  it('holds a bedtime that falls after midnight', () => {
+    const lateOnThursday = makeProfile({
+      bedtimeByWeekday: { 0: 1380, 1: 1380, 2: 1380, 3: 1380, 4: 1500, 5: 1380, 6: 1380 },
+    });
+    const oneInTheMorning = new Date('2026-01-16T01:00:00').getTime();
+    const threeInTheMorning = new Date('2026-01-16T03:00:00').getTime();
+    expect(sleepAdviceBedtime(lateOnThursday, threeInTheMorning)).toBe(oneInTheMorning);
+  });
+
+  it('leaves no safe time for another coffee once bedtime has passed', () => {
+    const justAfterBedtime = new Date('2026-01-15T23:08:00').getTime();
+    const advised = sleepAdviceBedtime(profile, justAfterBedtime);
+    expect(latestSafeIntakeTime([], 80, profile, justAfterBedtime, advised)).toBeNull();
   });
 });
 

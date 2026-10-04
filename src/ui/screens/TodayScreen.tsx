@@ -5,7 +5,7 @@ import { useIntakes } from '../hooks/useIntakes';
 import { useNow } from '../hooks/useNow';
 import { curveOverWindow, peakPointBetween } from '../../domain/pharmacokinetics';
 import { jitterThresholdFor, phaseAt } from '../../domain/phases';
-import { bedtimeAfter, cutoffWindow, latestSafeIntakeTime, projectedSleepLevel } from '../../domain/sleep';
+import { cutoffWindow, latestSafeIntakeTime, projectedSleepLevel, sleepAdviceBedtime } from '../../domain/sleep';
 import type { CutoffWindow } from '../../domain/sleep';
 import { rollingDailyStats, classifyTodayIntake, totalMgOnDay } from '../../domain/baseline';
 import { toleranceState, withdrawalRisk as calculateWithdrawalRisk } from '../../domain/tolerance';
@@ -65,7 +65,7 @@ export function TodayScreen() {
   const snapshot = useMemo<AdvisorSnapshot | null>(() => {
     if (!profile) return null;
 
-    const bedtimeAt = bedtimeAfter(profile, now);
+    const bedtimeAt = sleepAdviceBedtime(profile, now);
     const tolerance = toleranceState(intakes, now);
     const reading = phaseAt(intakes, now, profile, tolerance);
     const baseline = rollingDailyStats(intakes, now, BASELINE_WINDOW_DAYS);
@@ -115,7 +115,7 @@ export function TodayScreen() {
 
   const cutoff = useMemo<CutoffWindow>(() => {
     if (!profile) return { earliest: null, estimate: null, latest: null };
-    return cutoffWindow(forecastDoses, REFERENCE_COFFEE_MG, profile, now, bedtimeAfter(profile, now));
+    return cutoffWindow(forecastDoses, REFERENCE_COFFEE_MG, profile, now, sleepAdviceBedtime(profile, now));
   }, [profile, forecastDoses, now]);
 
   const todaysIntakes = useMemo(() => {

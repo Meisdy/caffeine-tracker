@@ -1,4 +1,4 @@
-import { HALF_LIFE_UNCERTAINTY, SLEEP_ONSET_WINDOW_HOURS } from './constants';
+import { ASSUMED_SLEEP_HOURS, HALF_LIFE_UNCERTAINTY, SLEEP_ONSET_WINDOW_HOURS } from './constants';
 import { personalHalfLifeHours } from './halfLife';
 import { concentrationAt, curveOverWindow } from './pharmacokinetics';
 import { DAY_MS, HOUR_MS, MINUTE_MS, startOfLocalDay, weekdayOf } from './time';
@@ -12,6 +12,21 @@ export function bedtimeAfter(profile: Profile, fromMs: number): number {
 
   const tomorrow = startOfLocalDay(fromMs + DAY_MS);
   return tomorrow + profile.bedtimeByWeekday[weekdayOf(tomorrow)] * MINUTE_MS;
+}
+
+/**
+ * The bedtime sleep advice should be about: the night in progress, if `fromMs`
+ * falls within `ASSUMED_SLEEP_HOURS` after a bedtime, otherwise the next one.
+ *
+ * `bedtimeAfter` alone rolls over to tomorrow the moment bedtime passes, which
+ * at 23:08 would call a coffee fine until tomorrow afternoon.
+ */
+export function sleepAdviceBedtime(profile: Profile, fromMs: number): number {
+  for (const day of [startOfLocalDay(fromMs - DAY_MS), startOfLocalDay(fromMs)]) {
+    const bedtime = day + profile.bedtimeByWeekday[weekdayOf(day)] * MINUTE_MS;
+    if (bedtime <= fromMs && fromMs < bedtime + ASSUMED_SLEEP_HOURS * HOUR_MS) return bedtime;
+  }
+  return bedtimeAfter(profile, fromMs);
 }
 
 export interface NightsOverThreshold {
