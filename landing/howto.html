@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Caffeine Tracker — setup and use</title>
+    <!--
+      A 43-second motion explainer, 1920×1080. Every frame is a pure function of
+      time: render(t) sets the whole stage, so the page can play live or be
+      captured frame by frame (window.renderAt). The curve and cutoff use the
+      app's model: Bateman, Vd 0.6 L/kg, ka 5/h, half-life 5 h, 70 kg.
+      Keys: space = pause, ←/→ = ±1 s. ?t=12 starts at 12 s.
+    -->
+    <style>
+      :root {
+        --background: #07090b;
+        --surface: #0f1317;
+        --surface-raised: #171c22;
+        --card-border: #1d242b;
+        --border: #606b77;
+        --text: #f4f7f2;
+        --text-muted: #c4ccd4;
+        --accent: #bcf04c;
+        --accent-strong: #d5f584;
+        --accent-subtle: #1b2410;
+        --danger: #ff6b5e;
+        --caution: #ffc247;
+        --ok: #39e0b0;
+        --font: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif;
+      }
+      * { box-sizing: border-box; margin: 0; }
+      html, body { height: 100%; background: #000; overflow: hidden; }
+      body { display: flex; align-items: center; justify-content: center; font-family: var(--font); color: var(--text); }
+
+      #stage {
+        position: relative; width: 1920px; height: 1080px; flex: none; overflow: hidden;
+        background: radial-gradient(1200px 800px at 75% 40%, #11180a 0%, var(--background) 60%);
+        transform-origin: center;
+      }
+      .abs { position: absolute; }
+      .layer { position: absolute; inset: 0; will-change: opacity, transform; }
+
+      /* Intro / outro */
+      .center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+      .logo { width: 180px; height: 180px; }
+      .title { font-size: 104px; font-weight: 800; letter-spacing: -0.03em; margin-top: 36px; }
+      .tagline { font-size: 38px; color: var(--text-muted); margin-top: 18px; }
+      .tagline b { color: var(--accent); font-weight: 700; }
+      .url { margin-top: 48px; font-size: 34px; font-weight: 700; color: var(--background); background: var(--accent); padding: 18px 36px; border-radius: 999px; }
+      .fineprint { margin-top: 26px; font-size: 22px; color: var(--text-muted); opacity: 0.8; }
+      .pills { display: flex; gap: 18px; margin-top: 40px; }
+      .pill { font-size: 28px; padding: 14px 28px; border-radius: 999px; border: 1.5px solid var(--card-border); background: var(--surface); }
+
+      /* Captions */
+      .caption { position: absolute; left: 150px; top: 300px; width: 760px; }
+      .step { font-size: 24px; font-weight: 700; letter-spacing: 0.18em; color: var(--accent); }
+      .headline { font-size: 78px; font-weight: 800; line-height: 1.05; letter-spacing: -0.025em; margin-top: 22px; }
+      .body { font-size: 32px; line-height: 1.45; color: var(--text-muted); margin-top: 28px; }
+      .body b { color: var(--text); }
+      .progress { position: absolute; left: 150px; bottom: 110px; display: flex; gap: 10px; }
+      .progress i { display: block; width: 64px; height: 6px; border-radius: 3px; background: var(--surface-raised); overflow: hidden; }
+      .progress i span { display: block; height: 100%; width: 0; background: var(--accent); }
+
+      /* Phone */
+      #phone { position: absolute; left: 1130px; top: 70px; width: 470px; height: 940px; border-radius: 68px; background: #1a1f24; padding: 14px; box-shadow: 0 60px 120px rgba(0,0,0,0.6), 0 0 0 2px #2a3138 inset; }
+      .screen { position: relative; width: 100%; height: 100%; border-radius: 56px; overflow: hidden; background: var(--background); }
+      .statusbar { position: absolute; top: 0; left: 0; right: 0; height: 52px; display: flex; justify-content: space-between; align-items: center; padding: 8px 36px 0; font-size: 17px; font-weight: 600; z-index: 20; background: var(--background); }
+      .notch { position: absolute; top: 12px; left: 50%; width: 120px; height: 32px; margin-left: -60px; border-radius: 20px; background: #000; z-index: 21; }
+      .app { position: absolute; inset: 52px 0 0 0; padding: 14px 20px; }
+      .section-title { font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin: 18px 0 10px; }
+      .card { background: var(--surface); border: 1px solid var(--card-border); border-radius: 18px; padding: 16px; }
+      .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; display: flex; justify-content: space-around; padding-top: 12px; border-top: 1px solid var(--card-border); background: var(--surface); font-size: 12px; color: var(--text-muted); }
+      .tabbar div { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+      .tabbar div::before { content: ''; width: 22px; height: 22px; border-radius: 7px; border: 2px solid currentColor; }
+      .tabbar .on { color: var(--accent); }
+
+      /* Browser + install */
+      .urlbar { display: flex; align-items: center; gap: 10px; height: 46px; border-radius: 23px; background: var(--surface-raised); padding: 0 16px; font-size: 16px; color: var(--text-muted); }
+      .urlbar .lock { width: 10px; height: 12px; border-radius: 2px; background: var(--text-muted); }
+      .urlbar .dots { margin-left: auto; font-size: 24px; color: var(--text); letter-spacing: -2px; line-height: 1; }
+      .landing { padding: 70px 18px 0; }
+      .landing h1 { font-size: 38px; line-height: 1.1; margin: 22px 0 12px; }
+      .landing p { font-size: 17px; line-height: 1.5; color: var(--text-muted); }
+      .btn { display: inline-block; margin-top: 26px; padding: 16px 28px; border-radius: 14px; background: var(--accent); color: var(--background); font-weight: 800; font-size: 18px; }
+      .menu { position: absolute; top: 112px; right: 16px; width: 250px; border-radius: 16px; background: var(--surface-raised); padding: 8px 0; box-shadow: 0 20px 50px rgba(0,0,0,0.6); transform-origin: top right; }
+      .menu div { padding: 15px 22px; font-size: 18px; }
+      .menu .hi { color: var(--accent); font-weight: 700; }
+      .scrim { position: absolute; inset: 0; background: rgba(0,0,0,0.55); }
+      .dialog { position: absolute; left: 30px; right: 30px; top: 300px; border-radius: 26px; background: var(--surface-raised); padding: 28px; }
+      .dialog h3 { font-size: 24px; margin-bottom: 18px; }
+      .dialog .row { display: flex; align-items: center; gap: 14px; font-size: 18px; color: var(--text-muted); }
+      .dialog .actions { display: flex; justify-content: flex-end; gap: 26px; margin-top: 30px; font-size: 18px; font-weight: 700; color: var(--accent); }
+      .home { background: linear-gradient(160deg, #1d2a14, #0b1018 70%); }
+      .grid { position: absolute; top: 130px; left: 34px; right: 34px; display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 34px; justify-items: center; }
+      .grid div { width: 70px; height: 70px; border-radius: 18px; background: rgba(255,255,255,0.09); }
+      .grid .ct { background: none; position: relative; }
+      .grid .ct svg { width: 70px; height: 70px; }
+      .grid .ct span { position: absolute; top: 76px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 13px; }
+
+      /* Profile */
+      .field { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--card-border); font-size: 18px; }
+      .field:last-child { border-bottom: 0; }
+      .input { min-width: 120px; text-align: right; padding: 9px 14px; border-radius: 10px; border: 1.5px solid var(--border); font-variant-numeric: tabular-nums; font-weight: 600; }
+      .input.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(188,240,76,0.25); }
+      .toggle { width: 48px; height: 28px; border-radius: 14px; background: var(--surface-raised); border: 1.5px solid var(--border); position: relative; }
+      .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 19px; height: 19px; border-radius: 50%; background: var(--text-muted); }
+      .halflife { margin-top: 16px; display: flex; justify-content: space-between; align-items: baseline; }
+      .halflife strong { font-size: 34px; color: var(--accent); }
+
+      /* Today */
+      .hero { display: flex; justify-content: space-between; align-items: center; }
+      .hero .value { font-size: 52px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+      .hero .unit { font-size: 18px; color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+      .badge { padding: 8px 16px; border-radius: 999px; font-size: 16px; font-weight: 700; color: var(--background); background: var(--ok); }
+      .favs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .fav { background: var(--surface); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; font-size: 16px; font-weight: 600; }
+      .fav small { display: block; margin-top: 4px; font-size: 14px; color: var(--text-muted); font-weight: 500; }
+      .chart text { font-family: var(--font); font-size: 12px; fill: var(--text-muted); }
+      .toast { position: absolute; left: 50%; bottom: 110px; transform: translateX(-50%); white-space: nowrap; padding: 14px 22px; border-radius: 14px; background: var(--accent); color: var(--background); font-weight: 800; font-size: 17px; }
+      .sheet { position: absolute; left: 12px; right: 12px; bottom: 96px; border-radius: 22px; background: var(--surface-raised); border: 1px solid var(--card-border); padding: 22px; box-shadow: 0 -20px 60px rgba(0,0,0,0.5); }
+      .sheet .big { font-size: 46px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+      .sheet p { font-size: 16px; line-height: 1.45; color: var(--text-muted); margin-top: 8px; }
+
+      /* What-if + habits */
+      .chip { display: inline-block; padding: 9px 14px; border-radius: 10px; background: var(--surface-raised); font-weight: 600; font-size: 16px; margin-right: 8px; }
+      .verdict { margin-top: 14px; padding: 14px; border-radius: 12px; font-size: 16px; line-height: 1.45; border: 1.5px solid var(--danger); color: var(--text); }
+      .verdict b { color: var(--danger); }
+      .planned { display: flex; justify-content: space-between; align-items: center; }
+      .planned .acts { display: flex; gap: 8px; }
+      .planned .acts span { padding: 9px 14px; border-radius: 10px; font-weight: 700; font-size: 15px; border: 1.5px solid var(--border); }
+      .planned .acts .primary { background: var(--accent); border-color: var(--accent); color: var(--background); }
+
+      .tap { position: absolute; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; border: 3px solid var(--accent-strong); background: rgba(213,245,132,0.25); pointer-events: none; z-index: 30; }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <!-- Intro -->
+      <div id="intro" class="layer center">
+        <svg id="introLogo" class="logo" viewBox="0 0 512 512" aria-hidden="true">
+          <rect width="512" height="512" rx="112" fill="#16120f" />
+          <ellipse cx="256" cy="256" rx="132" ry="176" transform="rotate(-32 256 256)" fill="#c98a3e" />
+          <path class="bean" d="M188 350 C 226 300, 226 212, 188 162" stroke="#16120f" stroke-width="26" fill="none" stroke-linecap="round" />
+          <path class="bean" d="M324 350 C 286 300, 286 212, 324 162" stroke="#16120f" stroke-width="26" fill="none" stroke-linecap="round" />
+        </svg>
+        <div id="introTitle" class="title">Caffeine Tracker</div>
+        <div id="introTag" class="tagline">What's <b>in your bloodstream</b>, not how many cups.</div>
+      </div>
+
+      <!-- Captions -->
+      <div id="cap1" class="caption"><div class="step">01 · SETUP</div><div class="headline">Install it like an app</div><div class="body"><b>Android:</b> Chrome, then ⋮ → Install app.<br /><b>iPhone:</b> Safari, then Share → Add to Home Screen.<br />Runs offline from then on.</div></div>
+      <div id="cap2" class="caption"><div class="step">02 · SETUP</div><div class="headline">Tell it about you</div><div class="body">Weight, age, bedtime and half-life modifiers personalise the model. Set them once under <b>Profile</b>.</div></div>
+      <div id="cap3" class="caption"><div class="step">03 · USE</div><div class="headline">One tap to log</div><div class="body">Tap a favorite. The curve shows the caffeine actually in your body, rising, peaking and fading.</div></div>
+      <div id="cap4" class="caption"><div class="step">04 · USE</div><div class="headline">Know your last call</div><div class="body">The <b>sleep cutoff</b> is the latest coffee that still keeps you under 1.0 mg/L when you fall asleep.</div></div>
+      <div id="cap5" class="caption"><div class="step">05 · USE</div><div class="headline">Plan ahead</div><div class="body"><b>What if?</b> checks a drink before you have it. <b>Habits</b> put your routine on the forecast.</div></div>
+      <div id="progress" class="progress"><i><span></span></i><i><span></span></i><i><span></span></i><i><span></span></i><i><span></span></i></div>
+
+      <!-- Phone -->
+      <div id="phone">
+        <div class="screen">
+          <div class="notch"></div>
+          <div class="statusbar"><span id="clock">08:00</span><span>●●● ▮</span></div>
+
+          <!-- 1a: browser landing page -->
+          <div id="sBrowser" class="layer">
+            <div class="app">
+              <div class="urlbar"><span class="lock"></span>meisdy.github.io/caffeine…<span class="dots">⋮</span></div>
+              <div class="landing">
+                <svg width="64" height="64" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#16120f" /><ellipse cx="256" cy="256" rx="132" ry="176" transform="rotate(-32 256 256)" fill="#c98a3e" /><path d="M188 350 C 226 300, 226 212, 188 162 M324 350 C 286 300, 286 212, 324 162" stroke="#16120f" stroke-width="26" fill="none" stroke-linecap="round" /></svg>
+                <h1>Caffeine Tracker</h1>
+                <p>A personal caffeine tracker that models what is actually in your bloodstream. No account. Nothing leaves your device.</p>
+                <span id="openBtn" class="btn">Open the app</span>
+              </div>
+            </div>
+          </div>
+          <!-- 1b: app opened in browser -->
+          <div id="sInBrowser" class="layer">
+            <div class="app">
+              <div class="urlbar"><span class="lock"></span>meisdy.github.io/caffeine…<span class="dots">⋮</span></div>
+              <div class="section-title" style="margin-top: 28px">Caffeine in your body</div>
+              <div class="card hero"><span class="value">0.00<span class="unit">mg/L</span></span><span class="badge">Clear</span></div>
+              <div class="section-title">Favorites</div>
+              <div class="favs"><div class="fav">Espresso</div><div class="fav">Flat White</div></div>
+            </div>
+            <div class="tabbar"><div class="on">Today</div><div>Log</div><div>History</div><div>Insights</div><div>Profile</div></div>
+          </div>
+          <div id="sMenu" class="layer"><div class="menu"><div>New tab</div><div>Bookmarks</div><div>Share…</div><div class="hi">Install app</div><div>Settings</div></div></div>
+          <div id="sDialog" class="layer"><div class="scrim"></div><div class="dialog"><h3>Install app?</h3><div class="row"><svg width="44" height="44" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#16120f" /><ellipse cx="256" cy="256" rx="132" ry="176" transform="rotate(-32 256 256)" fill="#c98a3e" /></svg>Caffeine Tracker<br />meisdy.github.io</div><div class="actions"><span style="color: var(--text-muted)">Cancel</span><span>Install</span></div></div></div>
+          <div id="sHome" class="layer home">
+            <div class="grid">
+              <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+              <div class="ct" id="homeIcon"><svg viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#16120f" /><ellipse cx="256" cy="256" rx="132" ry="176" transform="rotate(-32 256 256)" fill="#c98a3e" /><path d="M188 350 C 226 300, 226 212, 188 162 M324 350 C 286 300, 286 212, 324 162" stroke="#16120f" stroke-width="26" fill="none" stroke-linecap="round" /></svg><span>Caffeine</span></div>
+            </div>
+          </div>
+
+          <!-- 2: profile -->
+          <div id="sProfile" class="layer">
+            <div class="app">
+              <div class="section-title" style="margin-top: 6px">About you</div>
+              <div class="card" style="padding: 4px 16px">
+                <div class="field">Weight<span class="input" id="fWeight"></span></div>
+                <div class="field">Age<span class="input" id="fAge"></span></div>
+              </div>
+              <div class="section-title">Half-life modifiers</div>
+              <div class="card" style="padding: 4px 16px">
+                <div class="field">Smokes<span class="toggle"></span></div>
+                <div class="field">Uses oral contraceptives<span class="toggle"></span></div>
+              </div>
+              <div class="section-title">Bedtime</div>
+              <div class="card" style="padding: 4px 16px"><div class="field">Usually asleep by<span class="input" id="fBed"></span></div></div>
+              <div class="section-title">Sleep threshold</div>
+              <div class="card" style="padding: 4px 16px"><div class="field">Sleep disruption<span class="input" id="fThr"></span></div></div>
+              <div id="halfLife" class="card halflife"><span style="color: var(--text-muted)">Your half-life</span><strong>5.0 h</strong></div>
+            </div>
+            <div class="tabbar"><div>Today</div><div>Log</div><div>History</div><div>Insights</div><div class="on">Profile</div></div>
+          </div>
+
+          <!-- 3/4: today -->
+          <div id="sToday" class="layer">
+            <div class="app">
+              <div class="section-title" style="margin-top: 6px">Caffeine in your body</div>
+              <div class="card hero"><span class="value"><span id="heroVal">0.00</span><span class="unit">mg/L</span></span><span id="badge" class="badge">Clear</span></div>
+              <div class="section-title">Favorites</div>
+              <div class="favs">
+                <div class="fav" id="favEspresso">Espresso, work<small>70 mg</small></div>
+                <div class="fav">Americano, work<small>70 mg</small></div>
+                <div class="fav">Flat White<small>2 shots</small></div>
+                <div class="fav">Black Tea<small>250 ml</small></div>
+              </div>
+              <div class="section-title">Caffeine curve</div>
+              <div class="card" style="padding: 10px 6px 4px">
+                <svg id="chart" class="chart" width="406" height="230" viewBox="0 0 406 230"></svg>
+              </div>
+            </div>
+            <div id="toast" class="toast">+70 mg · Espresso, work</div>
+            <div id="sheet" class="sheet">
+              <div class="section-title" style="margin-top: 0">Advice · Sleep cutoff</div>
+              <div class="big" id="cutoffBig">--:--</div>
+              <p>Last coffee for a 23:00 bedtime. Later than that, you'd still be above 1.0 mg/L while falling asleep.</p>
+            </div>
+            <div class="tabbar"><div class="on">Today</div><div>Log</div><div>History</div><div>Insights</div><div>Profile</div></div>
+          </div>
+
+          <!-- 5: what if + habits -->
+          <div id="sPlan" class="layer">
+            <div class="app">
+              <div class="section-title" style="margin-top: 6px">Planned today</div>
+              <div class="card planned" id="plannedCard"><div><div style="font-weight: 700; font-size: 17px">Espresso, work</div><div style="color: var(--text-muted); font-size: 15px; margin-top: 4px">Mon–Fri · 10:00</div></div><div class="acts"><span class="primary">Log</span><span>Skip</span></div></div>
+              <div class="section-title">What if?</div>
+              <div class="card" id="whatIfCard">
+                <span class="chip">Cappuccino</span><span class="chip" id="wiTime">at 15:00</span>
+                <div class="verdict" id="verdict"></div>
+              </div>
+            </div>
+            <div class="tabbar"><div class="on">Today</div><div>Log</div><div>History</div><div>Insights</div><div>Profile</div></div>
+          </div>
+
+          <div id="tap" class="tap"></div>
+        </div>
+      </div>
+
+      <!-- Outro -->
+      <div id="outro" class="layer center">
+        <svg class="logo" style="width: 130px; height: 130px" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#16120f" /><ellipse cx="256" cy="256" rx="132" ry="176" transform="rotate(-32 256 256)" fill="#c98a3e" /><path d="M188 350 C 226 300, 226 212, 188 162 M324 350 C 286 300, 286 212, 324 162" stroke="#16120f" stroke-width="26" fill="none" stroke-linecap="round" /></svg>
+        <div class="title" style="font-size: 84px">Caffeine Tracker</div>
+        <div class="pills"><span class="pill">Works offline</span><span class="pill">No account</span><span class="pill">Data stays on your device</span></div>
+        <div class="url">meisdy.github.io/caffeine-tracker</div>
+        <div class="fineprint">Estimates from a population model. Not medical advice.</div>
+      </div>
+    </div>
+
+    <script>
+      const DURATION = 43;
+      const $ = (id) => document.getElementById(id);
+
+      // ---- Model (mirrors src/domain: Bateman, Vd 0.6 L/kg, ka 5/h) ----
+      const WEIGHT = 70, HALF_LIFE = 5, KA = 5, VD = 0.6 * WEIGHT, KE = Math.LN2 / HALF_LIFE;
+      const BEDTIME = 23, ONSET_WINDOW = 1.5, THRESHOLD = 1.0, REFERENCE_MG = 80;
+      const DOSES = [{ at: 8, mg: 70 }];
+      function level(hour, doses) {
+        let c = 0;
+        for (const d of doses) {
+          const dt = hour - d.at;
+          if (dt > 0) c += (d.mg / VD) * (KA / (KA - KE)) * (Math.exp(-KE * dt) - Math.exp(-KA * dt));
+        }
+        return c;
+      }
+      function sleepLevel(doses) {
+        let worst = 0;
+        for (let h = BEDTIME; h <= BEDTIME + ONSET_WINDOW; h += 1 / 60) worst = Math.max(worst, level(h, doses));
+        return worst;
+      }
+      function latestSafe(doses, mg) {
+        let lo = DOSES[0].at, hi = BEDTIME;
+        for (let i = 0; i < 40; i++) {
+          const mid = (lo + hi) / 2;
+          if (sleepLevel([...doses, { at: mid, mg }]) <= THRESHOLD) lo = mid; else hi = mid;
+        }
+        return lo;
+      }
+      const fmt = (h) => `${String(Math.floor(h)).padStart(2, '0')}:${String(Math.floor((h % 1) * 60)).padStart(2, '0')}`;
+      const CUTOFF = latestSafe(DOSES, REFERENCE_MG);
+      const CAPPUCCINO_MG = 180 * 0.35; // seed catalog: 180 ml at 35 mg/100 ml
+      const WHAT_IF_LATEST = latestSafe(DOSES, CAPPUCCINO_MG);
+      const WHAT_IF_AT = Math.ceil(WHAT_IF_LATEST); // just past the latest safe time
+      const WHAT_IF_LEVEL = sleepLevel([...DOSES, { at: WHAT_IF_AT, mg: CAPPUCCINO_MG }]);
+
+      // ---- Easing and timeline helpers ----
+      const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+      const easeOut = (x) => 1 - Math.pow(1 - x, 3);
+      const easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+      const back = (x) => 1 + 2.4 * Math.pow(x - 1, 3) + 1.4 * Math.pow(x - 1, 2);
+      const prog = (t, a, b, ease = easeOut) => ease(clamp((t - a) / (b - a)));
+      // Visibility of a window [a, b] with fades of f seconds on both ends.
+      const vis = (t, a, b, f = 0.4) => Math.min(prog(t, a, a + f, easeInOut), 1 - prog(t, b - f, b, easeInOut));
+      function show(el, o, dy = 0, scale = 1) {
+        el.style.opacity = o;
+        el.style.visibility = o <= 0.001 ? 'hidden' : 'visible';
+        el.style.transform = `translateY(${dy}px) scale(${scale})`;
+      }
+      const typed = (text, t, a, b) => text.slice(0, Math.round(text.length * prog(t, a, b, (x) => x)));
+
+      const SCENES = [
+        { id: 'intro', a: 0, b: 4.6 },
+        { id: 'install', a: 4.2, b: 11.2 },
+        { id: 'profile', a: 10.8, b: 17.6 },
+        { id: 'log', a: 17.2, b: 25.6 },
+        { id: 'cutoff', a: 25.6, b: 32.2 },
+        { id: 'plan', a: 31.8, b: 38.4 },
+        { id: 'outro', a: 38.0, b: DURATION + 1 },
+      ];
+      const S = Object.fromEntries(SCENES.map((s) => [s.id, s]));
+
+      // ---- Chart (static geometry built once, animated via dash offsets) ----
+      const CH = { x0: 34, x1: 396, y0: 196, y1: 14, hMin: 6, hMax: 25, cMax: 2 };
+      const cx = (h) => CH.x0 + ((h - CH.hMin) / (CH.hMax - CH.hMin)) * (CH.x1 - CH.x0);
+      const cy = (c) => CH.y0 - (c / CH.cMax) * (CH.y0 - CH.y1);
+      const NS = 'http://www.w3.org/2000/svg';
+      function svg(tag, attrs, parent = $('chart')) {
+        const el = document.createElementNS(NS, tag);
+        for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+        parent.appendChild(el);
+        return el;
+      }
+      for (const h of [6, 12, 18, 24]) svg('text', { x: cx(h), y: 216, 'text-anchor': 'middle' }).textContent = fmt(h % 24);
+      for (const c of [0, 1, 2]) svg('text', { x: 4, y: cy(c) + 4 }).textContent = c;
+      svg('line', { x1: CH.x0, x2: CH.x1, y1: CH.y0, y2: CH.y0, stroke: '#1d242b' });
+      const thrLine = svg('line', { x1: CH.x0, x2: CH.x1, y1: cy(THRESHOLD), y2: cy(THRESHOLD), stroke: '#ffc247', 'stroke-dasharray': '5 5' });
+      const thrLabel = svg('text', { x: cx(BEDTIME) - 6, y: cy(THRESHOLD) - 6, 'text-anchor': 'end', style: 'fill:#ffc247' });
+      thrLabel.textContent = 'sleep threshold 1.0 mg/L';
+      const bedBand = svg('rect', { x: cx(BEDTIME), width: cx(BEDTIME + ONSET_WINDOW) - cx(BEDTIME), y: CH.y1, height: CH.y0 - CH.y1, fill: 'rgba(120,140,255,0.16)' });
+      const bedLabel = svg('text', { x: cx(BEDTIME) - 4, y: CH.y1 + 12, 'text-anchor': 'end', style: 'fill:#aab4ff' });
+      bedLabel.textContent = 'bed';
+      let d = '', area = `M${cx(CH.hMin)},${cy(0)}`;
+      for (let h = CH.hMin; h <= CH.hMax + 1e-9; h += 0.05) {
+        const p = `${cx(h).toFixed(1)},${cy(level(h, DOSES)).toFixed(1)}`;
+        d += (d ? 'L' : 'M') + p;
+        area += 'L' + p;
+      }
+      area += `L${cx(CH.hMax)},${cy(0)}Z`;
+      const defs = svg('defs', {});
+      const grad = svg('linearGradient', { id: 'g', x1: 0, x2: 0, y1: 0, y2: 1 }, defs);
+      svg('stop', { offset: 0, 'stop-color': '#bcf04c', 'stop-opacity': 0.35 }, grad);
+      svg('stop', { offset: 1, 'stop-color': '#bcf04c', 'stop-opacity': 0 }, grad);
+      const clip = svg('clipPath', { id: 'reveal' }, defs);
+      const clipRect = svg('rect', { x: 0, y: 0, height: 230, width: 0 }, clip);
+      const areaPath = svg('path', { d: area, fill: 'url(#g)', 'clip-path': 'url(#reveal)' });
+      const curve = svg('path', { d, fill: 'none', stroke: '#bcf04c', 'stroke-width': 3, 'stroke-linejoin': 'round' });
+      const curveLen = curve.getTotalLength();
+      curve.style.strokeDasharray = curveLen;
+      const cutLine = svg('line', { x1: cx(CUTOFF), x2: cx(CUTOFF), y1: CH.y1, y2: CH.y0, stroke: '#bcf04c', 'stroke-width': 2 });
+      const cutLabel = svg('text', { x: cx(CUTOFF) + 5, y: CH.y1 + 12, style: 'fill:#d5f584;font-weight:700' });
+      cutLabel.textContent = `cutoff ${fmt(CUTOFF)}`;
+      const nowDot = svg('circle', { r: 6, fill: '#d5f584' });
+
+      // ---- Tap indicator: [time, x, y] in screen coordinates ----
+      const TAPS = [
+        [5.5, 125, 455], [6.9, 412, 88], [7.9, 301, 299], [9.2, 358, 460],
+        [18.5, 118, 281],
+      ];
+      function renderTap(t) {
+        const el = $('tap');
+        for (const [at, x, y] of TAPS) {
+          const u = t - at;
+          if (u > -0.25 && u < 0.45) {
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            const s = u < 0 ? 1 + (-u / 0.25) * 0.4 : 1 + u * 1.2;
+            el.style.opacity = u < 0 ? 1 - -u / 0.25 : 1 - u / 0.45;
+            el.style.transform = `scale(${s})`;
+            el.style.visibility = 'visible';
+            return;
+          }
+        }
+        el.style.visibility = 'hidden';
+      }
+
+      // ---- Render one frame ----
+      function render(t) {
+        // Intro
+        const ia = prog(t, 0.2, 1.2, back);
+        show($('introLogo'), vis(t, 0, S.intro.b) * clamp(ia * 2), 0, 0.6 + 0.4 * ia);
+        $('introLogo').style.transform += ` rotate(${(1 - ia) * -25}deg)`;
+        show($('introTitle'), vis(t, 0.9, S.intro.b), 30 * (1 - prog(t, 0.9, 1.7)));
+        show($('introTag'), vis(t, 1.6, S.intro.b), 24 * (1 - prog(t, 1.6, 2.4)));
+
+        // Captions follow their scene; the phone is on stage from install to plan.
+        const caps = ['install', 'profile', 'log', 'cutoff', 'plan'];
+        caps.forEach((id, i) => {
+          const s = S[id];
+          const o = vis(t, s.a + 0.2, s.b, 0.45);
+          show($('cap' + (i + 1)), o, 40 * (1 - prog(t, s.a + 0.2, s.a + 1)));
+          $('progress').children[i].firstChild.style.width = 100 * prog(t, s.a, s.b, (x) => x) + '%';
+        });
+        show($('progress'), vis(t, S.install.a, S.plan.b));
+        const phoneIn = prog(t, S.install.a, S.install.a + 1.1, easeOut);
+        const phoneOut = prog(t, S.plan.b - 0.8, S.plan.b, easeInOut);
+        show($('phone'), clamp(phoneIn * 1.5) * (1 - phoneOut), 260 * (1 - phoneIn) + 120 * phoneOut);
+
+        // Install
+        const ins = S.install;
+        show($('sBrowser'), vis(t, ins.a, 5.8, 0.2));
+        show($('sInBrowser'), vis(t, 5.7, 9.7, 0.25));
+        const menuO = vis(t, 7.0, 8.1, 0.2);
+        show($('sMenu'), menuO);
+        $('sMenu').firstChild.style.transform = `scale(${0.85 + 0.15 * prog(t, 7.0, 7.25)})`;
+        show($('sDialog'), vis(t, 8.0, 9.5, 0.25));
+        show($('sHome'), vis(t, 9.5, ins.b, 0.3));
+        const iconPop = prog(t, 9.9, 10.5, back);
+        $('homeIcon').style.transform = `scale(${iconPop})`;
+        $('homeIcon').style.opacity = clamp(iconPop * 3);
+
+        // Profile
+        const pr = S.profile;
+        show($('sProfile'), vis(t, pr.a, pr.b, 0.35), 0);
+        const fields = [['fWeight', '70 kg', 11.6], ['fAge', '34', 12.6], ['fBed', '23:00', 13.6], ['fThr', '1.0 mg/L', 14.6]];
+        for (const [id, text, at] of fields) {
+          $(id).textContent = typed(text, t, at, at + 0.5) || ' ';
+          $(id).classList.toggle('active', t >= at - 0.2 && t < at + 0.9);
+        }
+        show($('halfLife'), prog(t, 15.6, 16.1), 14 * (1 - prog(t, 15.6, 16.1)));
+
+        // Today: log and curve
+        show($('sToday'), vis(t, S.log.a, S.cutoff.b, 0.35));
+        const hour = 8 + 3 * prog(t, 18.7, 24.5, easeInOut); // clock advances 08:00 → 11:00
+        $('clock').textContent = t < S.log.a ? '08:00' : t < S.cutoff.a ? fmt(hour) : t < S.plan.a ? '11:00' : '12:40';
+        const logged = t >= 18.5;
+        const c = logged ? level(hour, DOSES) : 0;
+        $('heroVal').textContent = c.toFixed(2);
+        const peakH = DOSES[0].at + Math.log(KA / KE) / (KA - KE);
+        const phase = !logged ? ['Clear', 'var(--ok)'] : hour < peakH - 0.15 ? ['Rising', 'var(--accent)'] : hour < peakH + 0.5 ? ['Peak', 'var(--accent-strong)'] : ['Productive', 'var(--ok)'];
+        $('badge').textContent = phase[0];
+        $('badge').style.background = phase[1];
+        $('favEspresso').style.borderColor = t > 18.4 && t < 19.2 ? 'var(--accent)' : '';
+        show($('toast'), vis(t, 18.6, 20.4, 0.25), 20 * (1 - prog(t, 18.6, 18.9)));
+
+        // Scroll the favorites away so the advice sheet doesn't cover the chart.
+        $('sToday').querySelector('.app').style.transform = `translateY(${-205 * prog(t, 25.8, 26.8, easeInOut)}px)`;
+
+        // Curve: actual part up to "now", then the forecast reveals during the cutoff scene.
+        const reveal = t < S.cutoff.a ? (logged ? cx(hour) : CH.x0) : cx(hour) + (CH.x1 - cx(hour)) * prog(t, 26, 27.6, easeInOut);
+        clipRect.setAttribute('width', reveal);
+        const revealFrac = clamp((reveal - CH.x0) / (CH.x1 - CH.x0));
+        curve.style.strokeDashoffset = curveLen * (1 - revealFrac);
+        curve.style.opacity = logged ? 1 : 0;
+        nowDot.setAttribute('cx', cx(hour));
+        nowDot.setAttribute('cy', cy(c));
+        nowDot.style.opacity = logged ? 1 : 0;
+        const overlay = prog(t, 27.2, 28.0);
+        for (const el of [thrLine, thrLabel, bedBand, bedLabel]) el.style.opacity = overlay;
+        const cutO = prog(t, 28.2, 28.8);
+        cutLine.style.opacity = cutO;
+        cutLabel.style.opacity = cutO;
+        cutLine.setAttribute('y1', CH.y0 - (CH.y0 - CH.y1) * cutO);
+        const sheetIn = prog(t, 28.8, 29.6, back);
+        show($('sheet'), clamp(sheetIn * 2), 260 * (1 - sheetIn));
+        $('cutoffBig').textContent = fmt(8 + (CUTOFF - 8) * prog(t, 29.0, 30.4));
+
+        // Plan: habits and what-if
+        show($('sPlan'), vis(t, S.plan.a, S.plan.b, 0.35));
+        show($('plannedCard'), prog(t, 32.4, 33.0), 20 * (1 - prog(t, 32.4, 33.0)));
+        show($('whatIfCard'), prog(t, 33.3, 33.9), 20 * (1 - prog(t, 33.3, 33.9)));
+        $('wiTime').textContent = 'at ' + fmt(15 + (WHAT_IF_AT - 15) * prog(t, 34.2, 35.2));
+        $('verdict').innerHTML = `<b>Too late for 23:00.</b> You'd be at ${WHAT_IF_LEVEL.toFixed(2)} mg/L while falling asleep. Latest safe time: ${fmt(WHAT_IF_LATEST)}.`;
+        show($('verdict'), prog(t, 35.5, 36.0), 10 * (1 - prog(t, 35.5, 36.0)));
+
+        // Outro
+        const o = S.outro;
+        show($('outro'), vis(t, o.a + 0.3, o.b), 30 * (1 - prog(t, o.a + 0.3, o.a + 1.2)));
+        [...$('outro').querySelectorAll('.pill')].forEach((p, i) => show(p, prog(t, 39.2 + i * 0.25, 39.7 + i * 0.25), 16 * (1 - prog(t, 39.2 + i * 0.25, 39.7 + i * 0.25))));
+        show($('outro').querySelector('.url'), prog(t, 40.2, 40.8), 0, 0.9 + 0.1 * prog(t, 40.2, 40.8, back));
+
+        renderTap(t);
+      }
+
+      // ---- Playback / capture ----
+      function fit() {
+        const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+        $('stage').style.transform = `scale(${s})`;
+      }
+      addEventListener('resize', fit);
+      fit();
+
+      const params = new URLSearchParams(location.search);
+      window.renderAt = render;
+      window.DURATION = DURATION;
+      if (!params.has('capture')) {
+        let t = Number(params.get('t') || 0), paused = false, last = performance.now();
+        addEventListener('keydown', (e) => {
+          if (e.code === 'Space') paused = !paused;
+          if (e.code === 'ArrowRight') t = Math.min(DURATION, t + 1);
+          if (e.code === 'ArrowLeft') t = Math.max(0, t - 1);
+        });
+        (function frame(now) {
+          if (!paused) t = (t + (now - last) / 1000) % DURATION;
+          last = now;
+          render(t);
+          requestAnimationFrame(frame);
+        })(last);
+      } else {
+        render(0);
+      }
+    </script>
+  </body>
+</html>
