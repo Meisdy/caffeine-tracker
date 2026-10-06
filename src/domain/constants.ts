@@ -54,7 +54,7 @@ export const SLEEP_ONSET_WINDOW_HOURS = 1.5;
  * this long. Until it is over, sleep advice stays on the night in progress
  * instead of jumping ahead to tomorrow's bedtime.
  */
-export const ASSUMED_SLEEP_HOURS = 8;
+export const ASSUMED_SLEEP_HOURS = 6;
 
 /** Dose the cutoff card asks about: "can I still have one more coffee?" */
 export const REFERENCE_COFFEE_MG = 80;

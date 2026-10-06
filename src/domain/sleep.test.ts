@@ -49,7 +49,7 @@ describe('sleepAdviceBedtime', () => {
   });
 
   it('stays on the night in progress after midnight', () => {
-    const earlyMorning = new Date('2026-01-16T05:00:00').getTime();
+    const earlyMorning = new Date('2026-01-16T04:00:00').getTime();
     expect(sleepAdviceBedtime(profile, earlyMorning)).toBe(bedtime);
   });
 
