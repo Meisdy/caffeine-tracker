@@ -1,4 +1,4 @@
-import type { Habit, Intake } from '../domain/types';
+import type { Habit, Intake, ProfileSnapshot } from '../domain/types';
 import type {
   AlertnessRating,
   Drink,
@@ -22,6 +22,8 @@ interface DatabaseBackup {
   intakes: Intake[];
   alertnessRatings: AlertnessRating[];
   profile: StoredProfile[];
+  /** Absent in backups made before profile history existed. */
+  profileHistory?: ProfileSnapshot[];
   settings: Settings[];
 }
 
@@ -36,6 +38,7 @@ export async function exportToJson(): Promise<string> {
     intakes: await database.intakes.toArray(),
     alertnessRatings: await database.alertnessRatings.toArray(),
     profile: await database.profile.toArray(),
+    profileHistory: await database.profileHistory.toArray(),
     settings: await database.settings.toArray(),
   };
 
@@ -62,6 +65,7 @@ export async function importFromJson(json: string): Promise<void> {
       database.intakes,
       database.alertnessRatings,
       database.profile,
+      database.profileHistory,
       database.settings,
     ],
     async () => {
@@ -73,6 +77,7 @@ export async function importFromJson(json: string): Promise<void> {
         database.intakes.clear(),
         database.alertnessRatings.clear(),
         database.profile.clear(),
+        database.profileHistory.clear(),
         database.settings.clear(),
       ]);
 
@@ -84,6 +89,7 @@ export async function importFromJson(json: string): Promise<void> {
         database.intakes.bulkAdd(backup.intakes),
         database.alertnessRatings.bulkAdd(backup.alertnessRatings),
         database.profile.bulkAdd(backup.profile),
+        database.profileHistory.bulkAdd(backup.profileHistory ?? []),
         database.settings.bulkAdd(backup.settings),
       ]);
     },

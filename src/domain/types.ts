@@ -36,6 +36,16 @@ export interface Profile {
 }
 
 /**
+ * The profile as it stood from a given local day on, so a past day is drawn
+ * with the weight, modifiers and bedtimes that applied then rather than today's.
+ */
+export interface ProfileSnapshot {
+  /** `localDayKey` of the first day this profile applies to. */
+  effectiveFrom: string;
+  profile: Profile;
+}
+
+/**
  * The only thing the model needs about a drink: when and how much. A stored
  * `Intake` satisfies it, and so does a hypothetical dose the cutoff solver is
  * still deciding whether to recommend.

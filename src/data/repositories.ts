@@ -4,7 +4,8 @@
  * details (Dexie, table shapes, singleton keys) stay in one place.
  */
 
-import type { Habit, Intake, Profile } from '../domain/types';
+import type { Habit, Intake, Profile, ProfileSnapshot } from '../domain/types';
+import { localDayKey } from '../domain/time';
 import type { AlertnessRating, Drink, Favorite, Settings, Source } from './entities';
 import { DEFAULT_PROFILE, DEFAULT_SETTINGS } from './entities';
 import { database } from './database';
@@ -124,8 +125,16 @@ export async function getProfile(): Promise<Profile> {
   return profile;
 }
 
+/** Keyed by day, so repeated edits on one day leave a single snapshot: the last. */
 export async function saveProfile(profile: Profile): Promise<void> {
-  await database.profile.put({ ...profile, id: 'profile' });
+  await database.transaction('rw', [database.profile, database.profileHistory], async () => {
+    await database.profile.put({ ...profile, id: 'profile' });
+    await database.profileHistory.put({ effectiveFrom: localDayKey(Date.now()), profile });
+  });
+}
+
+export async function listProfileHistory(): Promise<ProfileSnapshot[]> {
+  return database.profileHistory.toArray();
 }
 
 export async function getSettings(): Promise<Settings> {

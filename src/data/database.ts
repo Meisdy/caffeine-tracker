@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 import type { Table } from 'dexie';
-import type { Habit, Intake } from '../domain/types';
+import type { Habit, Intake, ProfileSnapshot } from '../domain/types';
 import type {
   AlertnessRating,
   Drink,
@@ -11,6 +11,7 @@ import type {
 } from './entities';
 import { DEFAULT_PROFILE, DEFAULT_SETTINGS } from './entities';
 import { SEED_DRINKS, SEED_SOURCES } from './seedDrinks';
+import { localDayKey } from '../domain/time';
 
 export class CaffeineDatabase extends Dexie {
   drinks!: Table<Drink, string>;
@@ -20,6 +21,7 @@ export class CaffeineDatabase extends Dexie {
   intakes!: Table<Intake, string>;
   alertnessRatings!: Table<AlertnessRating, string>;
   profile!: Table<StoredProfile, string>;
+  profileHistory!: Table<ProfileSnapshot, string>;
   settings!: Table<Settings, string>;
 
   constructor() {
@@ -38,6 +40,10 @@ export class CaffeineDatabase extends Dexie {
     this.version(2).stores({
       habits: 'id, favoriteId',
     });
+
+    this.version(3).stores({
+      profileHistory: 'effectiveFrom',
+    });
   }
 }
 
@@ -51,6 +57,7 @@ export async function initializeDatabase(): Promise<void> {
   await synchronizeSeedDrinks();
   await seedSourcesIfEmpty();
   await seedProfileIfMissing();
+  await seedProfileHistoryIfEmpty();
   await seedSettingsIfMissing();
 }
 
@@ -97,6 +104,20 @@ async function seedProfileIfMissing(): Promise<void> {
   if (existingProfile) return;
 
   await database.profile.add({ ...DEFAULT_PROFILE, id: 'profile' });
+}
+
+/**
+ * Installs from before profile history get today's profile as their earliest
+ * snapshot, so past days at least stop shifting with later profile edits.
+ */
+async function seedProfileHistoryIfEmpty(): Promise<void> {
+  if ((await database.profileHistory.count()) > 0) return;
+
+  const storedProfile = await database.profile.get('profile');
+  if (!storedProfile) return;
+
+  const { id, ...profile } = storedProfile;
+  await database.profileHistory.add({ effectiveFrom: localDayKey(Date.now()), profile });
 }
 
 async function seedSettingsIfMissing(): Promise<void> {

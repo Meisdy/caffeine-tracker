@@ -746,6 +746,10 @@
   height: 100%;
   display: flex;
   align-items: flex-end;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
 }
 
 .history-bar {
@@ -753,6 +757,30 @@
   min-height: 2px;
   background: var(--accent);
   border-radius: 2px 2px 0 0;
+  opacity: 0.45;
+}
+
+.history-bar-column.is-active .history-bar {
+  opacity: 1;
+}
+
+.day-curve-navigation {
+  display: flex;
+  gap: 6px;
+}
+
+.day-curve-navigation .icon-button {
+  min-width: 36px;
+  font-size: 16px;
+}
+
+.day-curve-navigation .icon-button:disabled {
+  opacity: 0.4;
+}
+
+.day-curve-summary {
+  font-size: 13px;
+  margin: 0 0 8px;
 }
 
 .weekday-breakdown {
