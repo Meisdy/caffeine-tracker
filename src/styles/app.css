@@ -470,6 +470,39 @@
   fill: var(--text);
 }
 
+.curve-crossing-dot {
+  fill: var(--danger);
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+
+.curve-crossing-label {
+  fill: var(--danger);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Vertical page scroll stays with the browser; horizontal drags scrub the chart. */
+.curve-chart {
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.curve-scrub-line {
+  stroke: var(--text);
+  stroke-width: 1;
+}
+
+.curve-scrub-dot {
+  fill: var(--text);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.curve-scrub-label {
+  fill: var(--text);
+}
+
 /* Advice card */
 
 .recommendation-list + .cutoff-summary {

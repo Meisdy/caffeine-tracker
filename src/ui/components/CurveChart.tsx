@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import type { PointerEvent } from 'react';
 import type { CurvePoint, Intake } from '../../domain/types';
 import { formatClockTime } from '../lib/date';
 
@@ -16,6 +18,8 @@ const TIME_AXIS_TICK_COUNT = 4;
 // Headroom above the highest of (peak level, sleep threshold) so the curve
 // never touches the top edge and the threshold line is never flush with it.
 const VERTICAL_HEADROOM_FACTOR = 1.15;
+// Labels this close to a side edge are anchored to that edge so they stay inside the viewBox.
+const LABEL_EDGE_FRACTION = 0.2;
 
 interface CurveChartProps {
   curve: CurvePoint[];
@@ -41,6 +45,7 @@ export function CurveChart({
   sleepThresholdMgPerL,
   currentConcentrationMgPerL,
 }: CurveChartProps) {
+  const [scrubAtMs, setScrubAtMs] = useState<number | null>(null);
   const firstPoint = curve[0];
   const lastPoint = curve[curve.length - 1];
 
@@ -86,9 +91,27 @@ export function CurveChart({
   const showBedtimeMarker = bedtimeAtMs >= fromMs && bedtimeAtMs <= toMs;
   const showNowMarker = nowMs >= fromMs && nowMs <= toMs;
 
+  // The future follows the planned curve when habits are counted, matching the advice card.
+  const futureCurve = plannedFuture.length > 0 ? plannedFuture : curve.filter((point) => point.at >= nowMs);
+  const belowThresholdAtMs = firstDownwardCrossing(futureCurve, sleepThresholdMgPerL);
+
+  const scrub =
+    scrubAtMs === null
+      ? null
+      : { atMs: scrubAtMs, levelMgPerL: levelAt(scrubAtMs >= nowMs ? futureCurve : curve, scrubAtMs) };
+
+  function handleScrub(event: PointerEvent<SVGSVGElement>) {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    if (bounds.width === 0) return;
+    const viewBoxX = ((event.clientX - bounds.left) / bounds.width) * CHART_WIDTH;
+    const plotFraction = Math.min(Math.max((viewBoxX - MARGIN.left) / PLOT_WIDTH, 0), 1);
+    setScrubAtMs(fromMs + plotFraction * timeSpanMs);
+  }
+
   const ariaLabel =
     `Caffeine level now ${currentConcentrationMgPerL.toFixed(1)} milligrams per liter, ` +
-    `peaking at ${peakPoint.concentrationMgPerL.toFixed(1)} milligrams per liter around ${formatClockTime(peakPoint.at)}.`;
+    `peaking at ${peakPoint.concentrationMgPerL.toFixed(1)} milligrams per liter around ${formatClockTime(peakPoint.at)}.` +
+    (belowThresholdAtMs === null ? '' : ` Falls below the threshold around ${formatClockTime(belowThresholdAtMs)}.`);
 
   return (
     <svg
@@ -97,6 +120,11 @@ export function CurveChart({
       preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label={ariaLabel}
+      onPointerDown={handleScrub}
+      onPointerMove={handleScrub}
+      // Touch fires pointerleave right after pointerup, so this also ends a finger drag.
+      onPointerLeave={() => setScrubAtMs(null)}
+      onPointerCancel={() => setScrubAtMs(null)}
     >
       <defs>
         <linearGradient id="curve-area-gradient" x1="0" y1="0" x2="0" y2="1">
@@ -133,6 +161,20 @@ export function CurveChart({
         />
       ))}
 
+      {belowThresholdAtMs !== null ? (
+        <>
+          <circle cx={timeToX(belowThresholdAtMs)} cy={thresholdY} r={3.5} className="curve-crossing-dot" />
+          <text
+            x={timeToX(belowThresholdAtMs)}
+            y={thresholdY + 13}
+            textAnchor={edgeAwareAnchor(timeToX(belowThresholdAtMs))}
+            className="curve-crossing-label"
+          >
+            ↓ {formatClockTime(belowThresholdAtMs)}
+          </text>
+        </>
+      ) : null}
+
       {showBedtimeMarker ? (
         <>
           <line
@@ -142,24 +184,44 @@ export function CurveChart({
             y2={PLOT_BOTTOM}
             className="curve-bedtime-line"
           />
-          <text x={timeToX(bedtimeAtMs)} y={MARGIN.top - 6} textAnchor="middle" className="curve-marker-label curve-bedtime-label">
-            Bed
-          </text>
+          {/* The scrub readout takes over the label row while a finger is on the chart. */}
+          {scrub ? null : (
+            <text x={timeToX(bedtimeAtMs)} y={MARGIN.top - 6} textAnchor="middle" className="curve-marker-label curve-bedtime-label">
+              Bed
+            </text>
+          )}
         </>
       ) : null}
 
       {showNowMarker ? (
         <>
           <line x1={timeToX(nowMs)} y1={MARGIN.top} x2={timeToX(nowMs)} y2={PLOT_BOTTOM} className="curve-now-line" />
-          <text x={timeToX(nowMs)} y={MARGIN.top - 6} textAnchor="middle" className="curve-marker-label curve-now-label">
-            Now
-          </text>
+          {scrub ? null : (
+            <text x={timeToX(nowMs)} y={MARGIN.top - 6} textAnchor="middle" className="curve-marker-label curve-now-label">
+              Now
+            </text>
+          )}
           <circle
             cx={timeToX(nowMs)}
             cy={concentrationToY(currentConcentrationMgPerL)}
             r={4.5}
             className="curve-now-dot"
           />
+        </>
+      ) : null}
+
+      {scrub ? (
+        <>
+          <line x1={timeToX(scrub.atMs)} y1={MARGIN.top} x2={timeToX(scrub.atMs)} y2={PLOT_BOTTOM} className="curve-scrub-line" />
+          <circle cx={timeToX(scrub.atMs)} cy={concentrationToY(scrub.levelMgPerL)} r={4} className="curve-scrub-dot" />
+          <text
+            x={timeToX(scrub.atMs)}
+            y={MARGIN.top - 6}
+            textAnchor={edgeAwareAnchor(timeToX(scrub.atMs))}
+            className="curve-marker-label curve-scrub-label"
+          >
+            {formatClockTime(scrub.atMs)} · {scrub.levelMgPerL.toFixed(1)} mg/L
+          </text>
         </>
       ) : null}
 
@@ -183,4 +245,36 @@ function axisLabelAnchor(index: number, tickCount: number): 'start' | 'middle' |
   if (index === 0) return 'start';
   if (index === tickCount - 1) return 'end';
   return 'middle';
+}
+
+function edgeAwareAnchor(x: number): 'start' | 'middle' | 'end' {
+  if (x < CHART_WIDTH * LABEL_EDGE_FRACTION) return 'start';
+  if (x > CHART_WIDTH * (1 - LABEL_EDGE_FRACTION)) return 'end';
+  return 'middle';
+}
+
+/** Interpolates between curve samples; outside them it holds the nearest sample. */
+export function levelAt(points: readonly CurvePoint[], atMs: number): number {
+  const afterIndex = points.findIndex((point) => point.at >= atMs);
+  const after = points[afterIndex];
+  const before = points[afterIndex - 1];
+  if (!after) return points[points.length - 1]?.concentrationMgPerL ?? 0;
+  if (!before) return after.concentrationMgPerL;
+  const fraction = (atMs - before.at) / (after.at - before.at);
+  return before.concentrationMgPerL + fraction * (after.concentrationMgPerL - before.concentrationMgPerL);
+}
+
+/** When the level first drops from above the threshold to at or below it, interpolated between samples. */
+export function firstDownwardCrossing(points: readonly CurvePoint[], thresholdMgPerL: number): number | null {
+  for (let index = 1; index < points.length; index++) {
+    const before = points[index - 1];
+    const after = points[index];
+    if (!before || !after) continue;
+    if (before.concentrationMgPerL > thresholdMgPerL && after.concentrationMgPerL <= thresholdMgPerL) {
+      const fraction =
+        (before.concentrationMgPerL - thresholdMgPerL) / (before.concentrationMgPerL - after.concentrationMgPerL);
+      return before.at + fraction * (after.at - before.at);
+    }
+  }
+  return null;
 }
